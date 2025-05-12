@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -44,12 +46,15 @@ public class User  implements UserDetails {
     private LocalDateTime updatedAt;
 
     // Relationships (mapped to Prisma's references)
+    @ToString.Exclude
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL)
     private List<Parking> parkings;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL)
     private List<VehicleHistory> vehicleHistories;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL)
     private List<Vehicle> vehicles;
 
@@ -57,12 +62,12 @@ public class User  implements UserDetails {
 //metodos de la clase UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return this.email;
     }
 
     @Override
