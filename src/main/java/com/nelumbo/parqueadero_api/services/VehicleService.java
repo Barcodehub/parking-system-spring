@@ -4,17 +4,17 @@ import com.nelumbo.parqueadero_api.dto.VehicleEntryRequestDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitRequestDTO;
 import com.nelumbo.parqueadero_api.exception.BusinessException;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
-import com.nelumbo.parqueadero_api.models.Parking;
-import com.nelumbo.parqueadero_api.models.User;
-import com.nelumbo.parqueadero_api.models.Vehicle;
-import com.nelumbo.parqueadero_api.models.VehicleHistory;
+import com.nelumbo.parqueadero_api.models.*;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -28,6 +28,10 @@ public class VehicleService {
     private final ParkingRepository parkingRepository;
     private final UserRepository userRepository;
     private final VehicleHistoryRepository historyRepository;
+    private final RestTemplate restTemplate;
+
+    @Value("${notification.service.url}")
+    private String notificationServiceUrl;
 
     @Transactional
     public void registerVehicleEntry(VehicleEntryRequestDTO request, String userEmail) {
@@ -62,6 +66,9 @@ public class VehicleService {
                 .build();
 
         vehicleRepository.save(vehicle);
+
+        // 6. Enviar notificación por correo
+        sendNotification(userEmail, request.placa(), "Vehículo registrado", request.parqueaderoId().toString());
     }
 
 
@@ -103,6 +110,30 @@ public class VehicleService {
                 .socio(vehicle.getSocio())
                 .costo(costo)
                 .build();
+    }
+
+
+
+    private void sendNotification(String email, String placa, String message, String parqueaderoId) {
+        EmailRequest notificationRequest = new EmailRequest(
+                email,
+                placa.toUpperCase(),
+                message,
+                parqueaderoId
+        );
+
+        try {
+            ResponseEntity<EmailResponse> response = restTemplate.postForEntity(
+                    notificationServiceUrl + "/api/notifications/send-email",
+                    notificationRequest,
+                    EmailResponse.class);
+
+            // Loggear la respuesta
+            System.out.println("Notificación enviada: " + response.getBody());
+        } catch (Exception e) {
+            System.err.println("Error al enviar notificación: " + e.getMessage());
+            // Puedes implementar un sistema de reintentos aquí
+        }
     }
 }
 

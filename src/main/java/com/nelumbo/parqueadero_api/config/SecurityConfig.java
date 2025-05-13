@@ -41,7 +41,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/users/parkings").hasAuthority("ROLE_SOCIO")
                                 .requestMatchers(HttpMethod.GET, "/socio/**").hasAuthority("ROLE_SOCIO")
                                 .requestMatchers(HttpMethod.GET, "/api/users/parkings/").hasAuthority("ROLE_ADMIN")
-
+                                .requestMatchers(HttpMethod.GET, "/api/analityc").hasAnyAuthority("ROLE_ADMIN", "ROLE_SOCIO")
 
                                 .anyRequest().authenticated()
                 )

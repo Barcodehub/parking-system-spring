@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 @Repository
-public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
+public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
     boolean existsByPlacaAndFechaSalidaIsNull(String placa);
 
     @Query("SELECT COUNT(v) FROM Vehicle v WHERE v.parqueadero.id = :parqueaderoId AND v.fechaSalida IS NULL")
