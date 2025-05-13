@@ -18,8 +18,8 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Data
-@NoArgsConstructor // Constructor sin argumentos
-@AllArgsConstructor // Constructor con todos los argumentos
+@NoArgsConstructor
+@AllArgsConstructor
 public class User  implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,7 +1,10 @@
 package com.nelumbo.parqueadero_api.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,6 +15,9 @@ import java.util.List;
 @Entity
 @Table(name = "parkings")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Parking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
