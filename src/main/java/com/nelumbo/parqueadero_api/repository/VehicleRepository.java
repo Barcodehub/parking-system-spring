@@ -4,9 +4,11 @@ import com.nelumbo.parqueadero_api.models.Vehicle;
 import com.nelumbo.parqueadero_api.models.VehicleHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
-
+@Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     boolean existsByPlacaAndFechaSalidaIsNull(String placa);
 
@@ -14,6 +16,9 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     int countActiveVehiclesInParking(Long parqueaderoId);
 
     Optional<Vehicle> findByPlacaAndFechaSalidaIsNull(String placa);
+    List<Vehicle> findByParqueaderoIdAndFechaSalidaIsNull(Integer parqueaderoId);
+
+    List<Vehicle> findByParqueaderoId(Integer parkingId);
 
 }
 

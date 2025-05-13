@@ -38,6 +38,10 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.DELETE, "/api/parkings/**").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers(HttpMethod.POST, "/api/vehicles/entry").hasAnyRole("SOCIO")
                                 .requestMatchers(HttpMethod.POST, "/api/vehicles/exit").hasAnyRole("SOCIO")
+                                .requestMatchers(HttpMethod.POST, "/api/users/parkings").hasAuthority("ROLE_SOCIO")
+                                .requestMatchers(HttpMethod.GET, "/socio/**").hasAuthority("ROLE_SOCIO")
+                                .requestMatchers(HttpMethod.GET, "/api/users/parkings/").hasAuthority("ROLE_ADMIN")
+
 
                                 .anyRequest().authenticated()
                 )

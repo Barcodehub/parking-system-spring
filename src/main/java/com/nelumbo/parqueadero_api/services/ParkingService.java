@@ -2,16 +2,23 @@ package com.nelumbo.parqueadero_api.services;
 
 import com.nelumbo.parqueadero_api.dto.ParkingRequestDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
+import com.nelumbo.parqueadero_api.dto.VehicleResponseDTO;
 import com.nelumbo.parqueadero_api.exception.BusinessException;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.Parking;
 import com.nelumbo.parqueadero_api.models.Role;
 import com.nelumbo.parqueadero_api.models.User;
+import com.nelumbo.parqueadero_api.models.Vehicle;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
+import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +46,7 @@ public class ParkingService {
 
     // Obtener por ID
     public ParkingResponseDTO getParkingById(Integer id) {
-        Parking parking = parkingRepository.findById(Long.valueOf(Integer.valueOf(id)))
+        Parking parking = parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
         return mapToDTO(parking);
     }
@@ -54,7 +61,7 @@ public class ParkingService {
 
     // Actualizar
     public ParkingResponseDTO updateParking(Integer id, ParkingRequestDTO request) {
-        Parking parking = parkingRepository.findById(Long.valueOf(Integer.valueOf(id)))
+        Parking parking = parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
 
         if (!parking.getSocio().getId().equals(request.socioId())) {
@@ -72,7 +79,7 @@ public class ParkingService {
 
     // Eliminar
     public void deleteParking(Integer id) {
-        Parking parking = parkingRepository.findById(Long.valueOf(Integer.valueOf(id)))
+        Parking parking = parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
         parkingRepository.delete(parking);
     }
@@ -115,4 +122,7 @@ public class ParkingService {
                 parking.getCreatedAt()
         );
     }
+
+
+
 }

@@ -36,7 +36,7 @@ public class VehicleService {
         String placaNormalizada = request.placa().toUpperCase().trim();
 
         // 2. Buscar parqueadero y socio
-        Parking parqueadero = parkingRepository.findById(request.parqueaderoId())
+        Parking parqueadero = parkingRepository.findById(Math.toIntExact(request.parqueaderoId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
 
         User socio = userRepository.findByEmail(userEmail)
