@@ -23,7 +23,7 @@ public interface ParkingRepository extends JpaRepository<Parking, Integer> {
 
 
         Optional<Parking> findByIdAndSocioEmail(Integer id, String email);
-
+        Optional<Parking> findByIdAndSocioId(Integer id, Integer socioId);
 
 
 }

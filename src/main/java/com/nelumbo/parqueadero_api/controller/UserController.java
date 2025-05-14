@@ -55,7 +55,7 @@ public class UserController {
 
 
 
-
+//de cualquiera rol admin
     @GetMapping("/parkings/{parkingId}/vehicles")
     public List<AdminVehicleResponseDTO> getVehiclesInParking(
             @PathVariable Integer parkingId,

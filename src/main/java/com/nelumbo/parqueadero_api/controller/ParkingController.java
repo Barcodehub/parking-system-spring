@@ -1,24 +1,16 @@
 package com.nelumbo.parqueadero_api.controller;
 
+import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingRequestDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
-import com.nelumbo.parqueadero_api.dto.VehicleResponseDTO;
-import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
-import com.nelumbo.parqueadero_api.models.Parking;
-import com.nelumbo.parqueadero_api.models.Vehicle;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.services.ParkingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,15 +60,15 @@ public class ParkingController {
 
 
 
+//que le pertenezca al socio autenticado
 
-//    @GetMapping("/socio/{parkingId}/vehicles")
-//    public List<VehicleResponseDTO> getVehiclesInParking(
-//            @PathVariable Integer parkingId,
-//               @AuthenticationPrincipal UserDetails userDetails) {
-//
-//
-//        return parkingService.getVehiclesInParking(parkingId, userDetails);
-//    }
+    @GetMapping("/socio/my-parkings/{parkingId}/vehicles")
+    public List<AdminVehicleResponseDTO> getVehiclesInMyParking(
+            @PathVariable Integer parkingId,
+            @RequestParam(required = false) Boolean activeOnly,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return parkingService.getVehiclesInMyParking(parkingId, activeOnly, userDetails);
+    }
 
 
 
