@@ -1,5 +1,6 @@
 package com.nelumbo.parqueadero_api.services;
 
+import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingRequestDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleResponseDTO;
@@ -14,7 +15,11 @@ import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +35,7 @@ public class ParkingService {
 
     private final ParkingRepository parkingRepository;
     private final UserRepository userRepository;
+    private final VehicleRepository vehicleRepository;
 
     // Crear
     public ParkingResponseDTO createParking(ParkingRequestDTO request) {
@@ -123,6 +129,58 @@ public class ParkingService {
         );
     }
 
+    public List<AdminVehicleResponseDTO> getVehiclesInParking(Integer parkingId, Boolean activeOnly) {
+        // Verificación de autorización
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            throw new AccessDeniedException("Requiere rol ADMIN");
+        }
 
+        // Verificar existencia del parqueadero
+        parkingRepository.findById(parkingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
 
+        // Consulta flexible (activos o todos)
+        List<Vehicle> vehicles = (activeOnly != null && activeOnly) ?
+                vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId) :
+                vehicleRepository.findByParqueaderoId(parkingId);
+
+        return vehicles.stream()
+                .map(this::convertToAdminVehicleDTO)
+                .toList();
+    }
+
+    private AdminVehicleResponseDTO convertToAdminVehicleDTO(Vehicle vehicle) {
+        return new AdminVehicleResponseDTO(
+                vehicle.getId(),
+                vehicle.getPlaca(),
+                vehicle.getFechaIngreso(),
+                vehicle.getFechaSalida(),
+                vehicle.getParqueadero().getNombre(),
+                vehicle.getSocio().getName()
+        );
+    }
+
+    public List<ParkingResponseDTO> getParkingsBySocio(String email) {
+        // Verificación de autorización
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SOCIO"))) {
+            throw new AccessDeniedException("Requiere rol SOCIO");
+        }
+
+        return parkingRepository.findBySocioEmail(email).stream()
+                .map(this::convertToParkingDTO)
+                .toList();
+    }
+
+    private ParkingResponseDTO convertToParkingDTO(Parking parking) {
+        return new ParkingResponseDTO(
+                parking.getId(),
+                parking.getNombre(),
+                parking.getCapacidad(),
+                parking.getCostoPorHora(),
+                parking.getSocio().getId(),
+                parking.getCreatedAt()
+        );
+    }
 }

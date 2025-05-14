@@ -10,7 +10,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmailResponse {
-    private String status;
     private String message;
-    private LocalDateTime timestamp;
 }

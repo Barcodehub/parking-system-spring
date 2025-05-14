@@ -9,6 +9,7 @@ import com.nelumbo.parqueadero_api.models.Parking;
 import com.nelumbo.parqueadero_api.models.Vehicle;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
+import com.nelumbo.parqueadero_api.services.ParkingService;
 import com.nelumbo.parqueadero_api.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class UserController {
     private final UserService userService;
     private final ParkingRepository parkingRepository;
     private final VehicleRepository vehicleRepository;
+    private final ParkingService parkingService;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -42,69 +44,26 @@ public class UserController {
     }
 
 
+
     @GetMapping("/socio/parkings")
     public List<ParkingResponseDTO> getParkingsBySocio(
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SOCIO"))) {
-            throw new AccessDeniedException("Requiere rol USER");
-        }
-
-        return parkingRepository.findBySocioEmail(userDetails.getUsername()).stream()
-                .map(this::convertToParkingDTO)
-                .toList();
-    }
-
-    private ParkingResponseDTO convertToParkingDTO(Parking parking) {
-        return new ParkingResponseDTO(
-                parking.getId(),
-                parking.getNombre(),
-                parking.getCapacidad(),
-                parking.getCostoPorHora(),
-                parking.getSocio().getId(),
-                parking.getCreatedAt()
-        );
+        return parkingService.getParkingsBySocio(userDetails.getUsername());
     }
 
 
 
 
 
-     @GetMapping("/parkings/{parkingId}/vehicles")
-     public List<AdminVehicleResponseDTO> getVehiclesInParking(
-             @PathVariable Integer parkingId,
-             @RequestParam(required = false) Boolean activeOnly) {
+    @GetMapping("/parkings/{parkingId}/vehicles")
+    public List<AdminVehicleResponseDTO> getVehiclesInParking(
+            @PathVariable Integer parkingId,
+            @RequestParam(required = false) Boolean activeOnly) {
 
-         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-         if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-             throw new AccessDeniedException("Requiere rol SOCIO");
-         }
+        return parkingService.getVehiclesInParking(parkingId, activeOnly);
+    }
 
-            // Verificar existencia del parqueadero
-            parkingRepository.findById(parkingId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
-
-            // Consulta flexible (activos o todos)
-            List<Vehicle> vehicles = (activeOnly != null && activeOnly) ?
-                    vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId) :
-                    vehicleRepository.findByParqueaderoId(parkingId);
-
-            return vehicles.stream()
-                    .map(this::convertToAdminVehicleDTO)
-                    .toList();
-        }
-
-        private AdminVehicleResponseDTO convertToAdminVehicleDTO(Vehicle vehicle) {
-            return new AdminVehicleResponseDTO(
-                    vehicle.getId(),
-                    vehicle.getPlaca(),
-                    vehicle.getFechaIngreso(),
-                    vehicle.getFechaSalida(),
-                    vehicle.getParqueadero().getNombre(),
-                    vehicle.getSocio().getName()
-            );
-        }
     }
 
 

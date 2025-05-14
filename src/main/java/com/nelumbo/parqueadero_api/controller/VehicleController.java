@@ -2,6 +2,7 @@ package com.nelumbo.parqueadero_api.controller;
 
 import com.nelumbo.parqueadero_api.dto.VehicleEntryRequestDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitRequestDTO;
+import com.nelumbo.parqueadero_api.exception.BusinessException;
 import com.nelumbo.parqueadero_api.services.VehicleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,25 +25,24 @@ public class VehicleController {
 
     @PostMapping("/entry")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerEntry(
+    public ResponseEntity<?> registerEntry(
             @RequestBody @Valid VehicleEntryRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        vehicleService.registerVehicleEntry(request, userDetails.getUsername());
+
+        Map<String, Integer> response = vehicleService.registerVehicleEntry(request, userDetails.getUsername());
+        return ResponseEntity.ok(response);
     }
+
+
 
     @PostMapping("/exit")
-    public ResponseEntity<Map<String, Object>> registerExit(
-            @RequestBody @Valid VehicleExitRequestDTO request) {
-
-        BigDecimal costo = vehicleService.registerVehicleExit(request);
-
-        return ResponseEntity.ok(Map.of(
-                "message", "Salida registrada exitosamente",
-                "placa", request.placa(),
-                "costo", costo,
-                "fechaSalida", LocalDateTime.now()
-        ));
+    public ResponseEntity<?> registerVehicleExit(@RequestBody @Valid VehicleExitRequestDTO request) {
+        Map<String, String> response = vehicleService.registerVehicleExit(request);
+        return ResponseEntity.ok(response);
     }
+
+
+
 
 }
 

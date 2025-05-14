@@ -36,4 +36,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(DuplicateVehicleException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateVehicle(DuplicateVehicleException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }

@@ -67,31 +67,17 @@ public class ParkingController {
 
 
 
-    @GetMapping("/socio/{parkingId}/vehicles")
-    public List<VehicleResponseDTO> getVehiclesInParking(
-            @PathVariable Integer parkingId,
-            @AuthenticationPrincipal UserDetails userDetails) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SOCIO"))) {
-            throw new AccessDeniedException("Requiere rol SOCIO");
-        }
 
-        // Verificar que el parqueadero pertenezca al socio
-        Parking parking = parkingRepository.findByIdAndSocioEmail(parkingId, userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado o no tienes acceso"));
+//    @GetMapping("/socio/{parkingId}/vehicles")
+//    public List<VehicleResponseDTO> getVehiclesInParking(
+//            @PathVariable Integer parkingId,
+//               @AuthenticationPrincipal UserDetails userDetails) {
+//
+//
+//        return parkingService.getVehiclesInParking(parkingId, userDetails);
+//    }
 
-        return vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId).stream()
-                .map(this::convertToVehicleDTO)
-                .toList();
-    }
 
-    private VehicleResponseDTO convertToVehicleDTO(Vehicle vehicle) {
-        return new VehicleResponseDTO(
-                vehicle.getId(),
-                vehicle.getPlaca(),
-                vehicle.getFechaIngreso(),
-                vehicle.getParqueadero().getNombre()
-        );
-    }
+
 }
