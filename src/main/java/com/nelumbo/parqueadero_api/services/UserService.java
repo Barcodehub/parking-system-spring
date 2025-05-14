@@ -3,7 +3,6 @@ package com.nelumbo.parqueadero_api.services;
 import com.nelumbo.parqueadero_api.dto.UserRequestDTO;
 import com.nelumbo.parqueadero_api.dto.UserResponseDTO;
 import com.nelumbo.parqueadero_api.exception.EmailAlreadyExistsException;
-import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.Role;
 import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.repository.UserRepository;

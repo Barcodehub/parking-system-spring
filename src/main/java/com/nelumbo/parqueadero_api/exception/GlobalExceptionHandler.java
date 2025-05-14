@@ -3,11 +3,8 @@ package com.nelumbo.parqueadero_api.exception;
 
 import com.nelumbo.parqueadero_api.exception.EmailAlreadyExistsException;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

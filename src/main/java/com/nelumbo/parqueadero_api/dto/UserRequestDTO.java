@@ -1,6 +1,5 @@
 package com.nelumbo.parqueadero_api.dto;
 
-import com.nelumbo.parqueadero_api.models.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

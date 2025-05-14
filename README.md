@@ -55,7 +55,9 @@ API para gestión de parqueaderos con autenticación de usuarios, registro de ve
     - Java 17+
     - PostgreSQL 14+ corriendo
 
-2. Configuración inicial:
+2. Crear una Base de datos llamada: parking_spring
+
+3. Clonar Proyecto:
     - git clone [https://github.com/Barcodehub/parking-system-spring](https://github.com/Barcodehub/parking-system-spring)
     - cd parking-system-spring
     - `Run`
