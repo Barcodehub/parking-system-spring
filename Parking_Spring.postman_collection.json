@@ -99,7 +99,8 @@
 								"auth",
 								"login"
 							]
-						}
+						},
+						"description": "### Login Endpoint\n\nThis endpoint is used to authenticate a user and obtain an access token for further API requests. (ADMIN - SOCIO)\n\n#### Request Body\n\n- `email` (string): The email address of the user.\n    \n- `password` (string): The password of the user.\n    \n\n#### Response\n\nThe response will include the authentication token along with other relevant user information."
 					},
 					"response": []
 				},
@@ -142,7 +143,8 @@
 								"api",
 								"users"
 							]
-						}
+						},
+						"description": "This endpoint allows you to create a new user by sending a POST request to the specified URL. The request should include a JSON payload in the raw request body type with the following parameters:\n\n- `name` (string): The name of the user.\n    \n- `email` (string): The email address of the user.\n    \n- `password` (string): The password for the user's account.\n    \n\nUpon successful creation, the response will include the details of the newly created user."
 					},
 					"response": []
 				}
@@ -190,7 +192,8 @@
 								"api",
 								"parkings"
 							]
-						}
+						},
+						"description": "### Create a New Parking\n\nThis endpoint allows you to create a new parking.\n\n#### Request Body\n\n- `nombre` (string): The name of the parking.\n    \n- `capacidad` (number): The capacity of the parking.\n    \n- `costoPorHora` (number): The cost per hour for parking.\n    \n- `socioId` (number): The ID of the associated partner.\n    \n\n#### Response\n\nThe response will be a JSON object with the following schema:\n\n``` json\n{\n    \"id\": \"string\",\n    \"nombre\": \"string\",\n    \"capacidad\": \"number\",\n    \"costoPorHora\": \"number\",\n    \"socioId\": \"number\"\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -224,7 +227,8 @@
 								"api",
 								"parkings"
 							]
-						}
+						},
+						"description": "### Get Parkings\n\nThis endpoint is used to retrieve a list of parkings.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\nThe response will include an array of parking objects, each containing details such as parking ID, capacity, costxhour, socioID, and date-created."
 					},
 					"response": []
 				},
@@ -268,7 +272,8 @@
 								"parkings",
 								"1"
 							]
-						}
+						},
+						"description": "### Update Parking Information\n\nThis endpoint is used to update the information of a specific parking lot.\n\n#### Request Body Parameters\n\n- `nombre` (string): The updated name of the parking lot.\n    \n- `capacidad` (number): The updated capacity of the parking lot.\n    \n- `costoPorHora` (number): The updated cost per hour for parking.\n    \n- `socioId` (number): The ID of the associated partner for the parking lot.\n    \n\n#### Response\n\nThe response will include the updated details of the parking lot."
 					},
 					"response": []
 				},
@@ -302,6 +307,42 @@
 								"api",
 								"parkings",
 								"2"
+							]
+						},
+						"description": "### Delete Parking\n\nThis endpoint is used to delete a specific parking by providing its ID in the URL.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\nA successful response will have a status code indicating the success of the operation."
+					},
+					"response": []
+				},
+				{
+					"name": "Buscar parqueadero",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/parkings/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"parkings",
+								"1"
 							]
 						}
 					},
@@ -352,7 +393,8 @@
 								"vehicles",
 								"entry"
 							]
-						}
+						},
+						"description": "### Add Vehicle Entry\n\nThis endpoint allows you to add a new vehicle entry.\n\n#### Request Body\n\n- `placa` (string): The license plate of the vehicle.\n    \n- `parqueaderoId` (string): The ID of the parking lot.\n    \n\n#### Response\n\n- id"
 					},
 					"response": []
 				},
@@ -396,7 +438,8 @@
 								"vehicles",
 								"exit"
 							]
-						}
+						},
+						"description": "### Exit Vehicle from Parking\n\nThis endpoint is used to exit a vehicle from the parking system.\n\n#### Request Body\n\n- `placa`: (string) The license plate of the vehicle.\n    \n- `parqueaderoId`: (number) The ID of the parking lot.\n    \n\n#### Response\n\n\"mensaje\": \"Salida registrada\""
 					},
 					"response": []
 				}
@@ -437,7 +480,8 @@
 								"vehicles",
 								"top-global"
 							]
-						}
+						},
+						"description": "### Retrieve Top Global Vehicles Analytics\n\nThis endpoint makes an HTTP GET request to retrieve the top 10 global vehicles analytics.\n\n#### Request\n\nNo request body is required for this endpoint.\n\n- URL: `http://localhost:8080/api/analityc/vehicles/top-global`\n    \n- Method: `GET`\n    \n\n#### Response\n\nThe response will be a JSON array with the following schema:\n\n``` json\n[\n  {\n    \"placa\": \"string\",\n    \"count\": \"number\"\n  }\n]\n\n ```\n\nThe response will contain an array of objects, where each object represents a vehicle with its \"placa\" (license plate) and \"count\" indicating the analytics count."
 					},
 					"response": []
 				},
@@ -475,7 +519,8 @@
 								"vehicles",
 								"top"
 							]
-						}
+						},
+						"description": "### Get Top Vehicles in Parking\n\nThis endpoint retrieves the top 10 vehicles with more registers in a parking.\n\n#### Request\n\n- Method: GET\n    \n- URL: `http://localhost:8080/api/analityc/parkings/ID-Parking/vehicles/top`\n    \n\n#### Response\n\nThe response is in JSON format and follows the schema below:\n\n``` json\n[\n  {\n    \"placa\": \"string\",\n    \"count\": 0\n  }\n]\n\n ```\n\nThe response contains an array of objects, where each object includes the \"placa\" (license plate) as a string and the \"count\" of vehicles with that license plate in the parking."
 					},
 					"response": []
 				},
@@ -513,7 +558,8 @@
 								"vehicles",
 								"first-time"
 							]
-						}
+						},
+						"description": "# Get First Time Vehicles in Parking\n\nThis endpoint retrieves information about the first-time vehicles in a specific parking.\n\n## Request\n\n### Example\n\n```\nGET http://localhost:8080/api/analityc/parkings/Parking-ID/vehicles/first-time\n\n ```\n\n## Response\n\nStartFragment\\[    {       \n\n\"id\": 2,       \n\n\"placa\": String,       \n\n\"fechaIngreso\": \"2025-05-13T17:37:25.229841\",       \n\n\"parqueaderoNombre\": String    },\n\nEndFragment"
 					},
 					"response": []
 				},
@@ -550,7 +596,8 @@
 								"1",
 								"earnings"
 							]
-						}
+						},
+						"description": "### Get Parking Earnings\n\nThis endpoint retrieves the earnings for a specific parking.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\n- `today` (number): The earnings for today.\n    \n- `week` (number): The earnings for the current week.\n    \n- `month` (number): The earnings for the current month.\n    \n- `year` (number): The earnings for the current year.\n    \n\nExample Response:\n\n``` json\n{\n    \"today\": 0,\n    \"week\": 0,\n    \"month\": 0,\n    \"year\": 0\n}\n\n ```"
 					},
 					"response": []
 				},
@@ -586,7 +633,8 @@
 								"socios",
 								"top-earnings"
 							]
-						}
+						},
+						"description": "### Get Top Earning Socios\n\nThis endpoint retrieves the top 3 earning socios for analytics.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response Body\n\n- SocioName\n    \n- VehicleCount\n    \n- TotalEarnings"
 					},
 					"response": []
 				},
@@ -622,7 +670,8 @@
 								"parkings",
 								"top-earnings"
 							]
-						}
+						},
+						"description": "This endpoint makes an HTTP GET request to fetch the top3-earning parking analytics. The response will be in JSON format and will include an array of objects, each containing the name of the parking and its total earnings.\n\n### Request Body\n\nThis request does not require a request body.\n\n### Response Body\n\n- `parkingName` (string): The name of the parking.\n    \n- `totalEarnings` (number): The total earnings of the parking.\n    \n\nExample Response:\n\n``` json\n[\n    {\n        \"parkingName\": \"Sample Parking\",\n        \"totalEarnings\": 1000\n    }\n]\n\n ```"
 					},
 					"response": []
 				}
@@ -660,7 +709,8 @@
 						"socio",
 						"parkings"
 					]
-				}
+				},
+				"description": "This endpoint retrieves a list of parking details associated with a specific socio.\n\n### Request\n\n- Method: GET\n    \n- URL: `http://localhost:8080/api/users/socio/parkings`\n    \n\n### Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n- \\[ { \"id\": 0, \"nombre\": \"\", \"capacidad\": 0, \"costoPorHora\": 0, \"socioId\": 0, \"createdAt\": \"\" }\\]"
 			},
 			"response": []
 		},
@@ -697,12 +747,13 @@
 						"1",
 						"vehicles"
 					]
-				}
+				},
+				"description": "### Get User Parked Vehicles\n\nThis endpoint retrieves the list of vehicles parked at the specific parking.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n\n##### Response Body\n\nThe response returns an array of objects, each representing a vehicle parked at the specified parking. Each object contains the following attributes:\n\n- `id` (number): The unique identifier for the vehicle.\n    \n- `placa` (string): The license plate of the vehicle.\n    \n- `fechaIngreso` (string): The date and time of the vehicle's entry into the parking.\n    \n- `fechaSalida` (string): The date and time of the vehicle's exit from the parking (null if the vehicle is still parked).\n    \n- `parqueaderoNombre` (string): The name of the parking.\n    \n- `socioNombre` (string): The name of the user associated with the vehicle."
 			},
 			"response": []
 		},
 		{
-			"name": "vehicles parking assocated",
+			"name": "vehicles of my parking assocated",
 			"request": {
 				"auth": {
 					"type": "noauth"
@@ -721,7 +772,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/api/parkings/socio/1/vehicles",
+					"raw": "http://localhost:8080/api/parkings/socio/my-parkings/1/vehicles",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -731,10 +782,12 @@
 						"api",
 						"parkings",
 						"socio",
+						"my-parkings",
 						"1",
 						"vehicles"
 					]
-				}
+				},
+				"description": "# Get Socio's Vehicles\n\nThis endpoint retrieves the vehicles from the specific parking associated with a socio.\n\n## Request\n\n### Endpoint\n\n`GET http://localhost:8080/api/`parkings/socio/my-parkings/Parking-ID/vehicles\n\n## Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n\n``` json\n[\n    {\n        \"id\": 0,\n        \"placa\": \"\",\n        \"fechaIngreso\": \"\",\n        \"fechaSalida\": null,\n        \"parqueaderoNombre\": \"\",\n        \"socioNombre\": \"\"\n    }\n]\n\n ```\n\nThe response body contains an array of vehicles associated with the specified socio, including details such as the vehicle ID, license plate, entry date, exit date (if applicable), parking name, and socio name."
 			},
 			"response": []
 		},
@@ -770,7 +823,8 @@
 						"admin",
 						"emails"
 					]
-				}
+				},
+				"description": "This endpoint allows administrators to send emails to specific users. email-simulation\n\n### Request Body\n\n- `subject` (string): The subject of the email.\n    \n- `message` (string): The content of the email.\n    \n- `socioId` (integer): The ID of the user to whom the email will be sent.\n    \n\n### Response\n\nUpon successful execution, the server responds with a status code of 200 and a JSON object containing a `message` key with an empty string value.\n\nExample:\n\n``` json\n{\n    \"message\": \"\"\n}\n\n ```"
 			},
 			"response": []
 		},
@@ -811,7 +865,8 @@
 						"notifications",
 						"send-email"
 					]
-				}
+				},
+				"description": "### Microservice - Email-Simulation\n\nThis endpoint allows you to send an email notification to a specified recipient.\n\nIt active when vehicle-entry (see logs)\n\n#### Request Body\n\n- `email` (string): The email address of the recipient.\n    \n- `placa` (string): The license plate information.\n    \n- `message` (string): The message content of the email.\n    \n- `parqueaderoId` (number): The ID of the parking lot.\n    \n\n#### Response\n\nThe response will include the status of the email notification delivery."
 			},
 			"response": []
 		}

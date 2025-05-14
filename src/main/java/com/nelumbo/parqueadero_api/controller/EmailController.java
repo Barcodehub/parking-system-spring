@@ -5,6 +5,7 @@ import com.nelumbo.parqueadero_api.models.Role;
 import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.services.EmailService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/emails")
 @RequiredArgsConstructor
+@Tag(name = "Email", description = "(Admin) Simular enviar un correo a un Socio")
 public class EmailController {
 
     private final EmailService emailService;

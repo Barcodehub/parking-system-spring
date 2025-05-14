@@ -4,23 +4,15 @@ import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
 import com.nelumbo.parqueadero_api.dto.UserRequestDTO;
 import com.nelumbo.parqueadero_api.dto.UserResponseDTO;
-import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
-import com.nelumbo.parqueadero_api.models.Parking;
-import com.nelumbo.parqueadero_api.models.Vehicle;
-import com.nelumbo.parqueadero_api.repository.ParkingRepository;
-import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.services.ParkingService;
 import com.nelumbo.parqueadero_api.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,12 +24,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final ParkingRepository parkingRepository;
-    private final VehicleRepository vehicleRepository;
     private final ParkingService parkingService;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "crear usuario", description = "Crea un usuario de rol SOCIO")
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequest) {
         UserResponseDTO createdUser = userService.createUser(userRequest);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
@@ -46,6 +37,7 @@ public class UserController {
 
 
     @GetMapping("/socio/parkings")
+    @Operation(summary = "Parqueaderos del Socio", description = "El socio puede ver listado de los parqueaderos que tiene asociados")
     public List<ParkingResponseDTO> getParkingsBySocio(
             @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -57,6 +49,7 @@ public class UserController {
 
 //de cualquiera rol admin
     @GetMapping("/parkings/{parkingId}/vehicles")
+    @Operation(summary = "Vehiculos de un parqueadero especifico", description = "El Admin Puede revisar listado/detalle de vehículos en un parqueadero en especifico")
     public List<AdminVehicleResponseDTO> getVehiclesInParking(
             @PathVariable Integer parkingId,
             @RequestParam(required = false) Boolean activeOnly) {

@@ -32,15 +32,6 @@ public class AuthService {
             User user = userRepository.findByEmail(request.email())
                     .orElseThrow(() -> new AuthenticationFailedException("User not found"));
 
-            // Verificación manual de contraseña con logging
-            if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-                System.out.println("DEBUG - Password mismatch:");
-                System.out.println("Provided: " + request.password());
-                System.out.println("Stored: " + user.getPassword());
-                System.out.println("Encoded provided: " + passwordEncoder.encode(request.password()));
-                throw new AuthenticationFailedException("Invalid credentials");
-            }
-
             // Autenticación con Spring Security
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(

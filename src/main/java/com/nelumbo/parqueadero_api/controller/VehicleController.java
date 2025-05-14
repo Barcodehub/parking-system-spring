@@ -2,8 +2,8 @@ package com.nelumbo.parqueadero_api.controller;
 
 import com.nelumbo.parqueadero_api.dto.VehicleEntryRequestDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitRequestDTO;
-import com.nelumbo.parqueadero_api.exception.BusinessException;
 import com.nelumbo.parqueadero_api.services.VehicleService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,8 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -25,6 +23,7 @@ public class VehicleController {
 
     @PostMapping("/entry")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Registrar entrada de Vehiculo a un Parqueadero", description = "El Socio puede registrar entrada de vehículos por algún parqueadero")
     public ResponseEntity<?> registerEntry(
             @RequestBody @Valid VehicleEntryRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -36,6 +35,7 @@ public class VehicleController {
 
 
     @PostMapping("/exit")
+    @Operation(summary = "Registrar salida de Vehiculo de un Parqueadero", description = "El Socio puede registrar salida de vehículos por algún parqueadero, siempre y cuando el vehículo haya tenido una entrada.")
     public ResponseEntity<?> registerVehicleExit(@RequestBody @Valid VehicleExitRequestDTO request) {
         Map<String, String> response = vehicleService.registerVehicleExit(request);
         return ResponseEntity.ok(response);

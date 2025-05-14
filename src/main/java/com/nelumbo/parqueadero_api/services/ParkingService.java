@@ -70,16 +70,20 @@ public class ParkingService {
         Parking parking = parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
 
-        if (!parking.getSocio().getId().equals(request.socioId())) {
-            throw new BusinessException("No puedes modificar un parqueadero de otro socio");
-        }
+//        if (!parking.getSocio().getId().equals(request.socioId())) {
+//            throw new BusinessException("No puedes modificar un parqueadero de otro socio");
+//        }
 
         validateUniqueParkingName(request.nombre(), Math.toIntExact(request.socioId()), id);
 
         parking.setNombre(request.nombre());
         parking.setCapacidad(request.capacidad());
         parking.setCostoPorHora(request.costoPorHora());
-
+        if (request.socioId() != null) {
+            User socio = userRepository.findById(request.socioId())
+                    .orElseThrow(() -> new IllegalArgumentException("Socio no encontrado"));
+            parking.setSocio(socio);
+        }
         return mapToDTO(parkingRepository.save(parking));
     }
 

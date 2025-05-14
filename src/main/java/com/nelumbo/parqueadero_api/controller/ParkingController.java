@@ -6,6 +6,7 @@ import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.services.ParkingService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,22 +30,26 @@ public class ParkingController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "crear Parqueadero", description = "El Admin puede crear un parqueadero")
     public ParkingResponseDTO createParking(@RequestBody @Valid ParkingRequestDTO request) {
         return parkingService.createParking(request);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Buscar Parqueadero", description = "El Admin puede ver el detalle de un parqueadero especifico")
     public ParkingResponseDTO getParkingById(@PathVariable Integer id) {
         return parkingService.getParkingById(id);
     }
 
     @GetMapping
+    @Operation(summary = "Listado - Parqueaderos", description = "El Admin puede ver la lista de parqueaderos")
     public List<ParkingResponseDTO> getAllParkings(
             @RequestParam(required = false) Integer socioId) {
         return parkingService.getAllParkings(Optional.ofNullable(socioId));
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Editar Parqueaderos", description = "El Admin puede editar parqueaderos")
     public ParkingResponseDTO updateParking(
             @PathVariable Integer id,
             @RequestBody @Valid ParkingRequestDTO request) {
@@ -53,6 +58,7 @@ public class ParkingController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Eliminar Parqueaderos", description = "El Admin puede eliminar parqueaderos")
     public void deleteParking(@PathVariable Integer id) {
         parkingService.deleteParking(Math.toIntExact(id));
     }
@@ -63,6 +69,7 @@ public class ParkingController {
 //que le pertenezca al socio autenticado
 
     @GetMapping("/socio/my-parkings/{parkingId}/vehicles")
+    @Operation(summary = "Vehiculos de un Parqueadero de mi propiedad", description = "El Socio Puede ver listado/detalle de todos los vehículos en un parqueadero especifico que le pertenezca")
     public List<AdminVehicleResponseDTO> getVehiclesInMyParking(
             @PathVariable Integer parkingId,
             @RequestParam(required = false) Boolean activeOnly,
