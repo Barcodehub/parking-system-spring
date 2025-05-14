@@ -249,7 +249,7 @@ Permisos: Admin
 
 ### EMAIL (SIMULACIÓN prueba directa)
 
-POST `http://localhost:8080/api/`
+POST `http://localhost:8081/api/`
 
 ```http
 POST /notifications/send-email
