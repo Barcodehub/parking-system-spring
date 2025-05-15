@@ -62,6 +62,11 @@ API para gestión de parqueaderos con autenticación de usuarios, registro de ve
     - cd parking-system-spring
     - `Run`
 
+4. Documentación de la API con Swagger:
+   - Esta aplicación incluye Swagger UI para explorar y probar los endpoints de la API de manera interactiva.
+   - Accede a traves de: http://localhost:8080/swagger-ui/index.html
+   - Asegurate de colocar el token de autenticacion correcta en el botón Authorize 🔒 
+
 ## Estructura de directorios:
 
   ```
