@@ -11,5 +11,5 @@ public class EmailRequest {
     private String email;
     private String placa;
     private String message;
-    private String parqueaderoId;
+    private Integer parqueaderoId;
 }

@@ -1,0 +1,168 @@
+openapi: "3.0.0"
+info:
+  title: Email-Service
+  description: Microservicio simulador de correo, se activa al entrar un vehiculo
+  version: v0
+servers:
+  - url: http://localhost:8081
+    description: Servidor de desarrollo local
+  - url: http://localhost:8081
+    description: Servidor de desarrollo
+  - url: http://localhost:8081
+    description: Servidor de QA
+  - url: http://localhost:8081
+    description: Servidor de producción
+paths:
+  /api/notifications/send-email:
+    post:
+      tags:
+        - email-controller
+      operationId: sendEmail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/EmailResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+components:
+  schemas:
+    StandardError:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 2
+          maxLength: 20
+          description: Código del error
+          example: PERR100
+        description:
+          type: string
+          minLength: 2
+          maxLength: 250
+          description: Descripción del error
+          example: Error de validación
+        field:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Campo con error
+          example: email
+        traceId:
+          type: string
+          format: uuid
+          description: ID de traza para diagnóstico
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      required:
+        - code
+        - description
+
+    StandardErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/StandardError'
+      required:
+        - errors
+    EmailRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        placa:
+          type: string
+        message:
+          type: string
+        parqueaderoId:
+          type: integer
+          format: int32
+    EmailResponse:
+      type: object
+      properties:
+        message:
+          type: string
+  responses:
+    badRequestResponse:
+      description: Solicitud incorrecta
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            BadRequest:
+              value:
+                errors:
+                  - code: "400"
+                    description: "El campo 'email' es requerido"
+                    field: "email"
+                    traceId: "550e8400-e29b-41d4-a716-446655440000"
+
+    unauthorizedResponse:
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            Unauthorized:
+              value:
+                errors:
+                  - code: "401"
+                    description: "Token de acceso no válido o expirado"
+
+    forbiddenResponse:
+      description: Prohibido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            Forbidden:
+              value:
+                errors:
+                  - code: "403"
+                    description: "No tiene permisos para acceder a este recurso"
+
+    notFoundResponse:
+      description: No encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            NotFound:
+              value:
+                errors:
+                  - code: "404"
+                    description: "Parqueadero no encontrado"
+
+    internalServerErrorResponse:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            InternalError:
+              value:
+                errors:
+                  - code: "500"
+                    description: "Error interno del servidor"
