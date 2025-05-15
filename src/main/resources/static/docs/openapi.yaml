@@ -60,8 +60,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
 
     put:
       tags:
@@ -97,8 +107,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
     delete:
       tags:
         - parking-controller
@@ -123,8 +143,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/vehicles/exit:
     post:
       tags:
@@ -153,8 +183,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/vehicles/entry:
     post:
       tags:
@@ -186,8 +226,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/users:
     post:
       tags:
@@ -216,8 +266,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/parkings:
     get:
       tags:
@@ -249,8 +309,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
     post:
       tags:
         - parking-controller
@@ -278,8 +348,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/auth/login:
     post:
       tags:
@@ -306,8 +386,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/admin/emails:
     post:
       tags:
@@ -334,8 +424,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/users/socio/parkings:
     get:
       tags:
@@ -360,8 +460,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/users/parkings/{parkingId}/vehicles:
     get:
       tags:
@@ -393,8 +503,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/parkings/socio/my-parkings/{parkingId}/vehicles:
     get:
       tags:
@@ -426,8 +546,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/analityc/vehicles/top-global:
     get:
       tags:
@@ -452,8 +582,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/analityc/socios/top-earnings:
     get:
       tags:
@@ -478,8 +618,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/analityc/parkings/{id}/vehicles/top:
     get:
       tags:
@@ -511,8 +661,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/analityc/parkings/{id}/vehicles/first-time:
     get:
       tags:
@@ -544,8 +704,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/analityc/parkings/{id}/earnings:
     get:
       tags:
@@ -575,8 +745,18 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
   /api/analityc/parkings/top-earnings:
     get:
       tags:
@@ -601,10 +781,38 @@ paths:
           $ref: '#/components/responses/forbiddenResponse'
         '404':
           $ref: '#/components/responses/notFoundResponse'
+        '406':
+          $ref: '#/components/responses/notAcceptableResponse'
+        '413':
+          $ref: '#/components/responses/payloadTooLargeResponse'
+        '415':
+          $ref: '#/components/responses/unsupportedMediaTypeResponse'
+        '429':
+          $ref: '#/components/responses/tooManyRequestsResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
+        '503':
+          $ref: '#/components/responses/serviceUnavailableResponse'
 components:
   schemas:
+    SecurityHeaders:
+      type: object
+      properties:
+        strict-transport-security:
+          type: string
+          example: "max-age=63072000; includeSubDomains; preload"
+        x-frame-options:
+          type: string
+          example: "DENY"
+        x-content-type-options:
+          type: string
+          example: "nosniff"
+        content-security-policy:
+          type: string
+          example: "default-src 'self'"
+        referrer-policy:
+          type: string
+          example: "strict-origin-when-cross-origin"
     StandardError:
       type: object
       properties:
@@ -855,7 +1063,7 @@ components:
               value:
                 errors:
                   - code: "400"
-                    description: "El campo 'email' es requerido"
+                    description: "El campo ' ' es requerido"
                     field: "email"
                     traceId: "550e8400-e29b-41d4-a716-446655440000"
 
@@ -896,7 +1104,7 @@ components:
               value:
                 errors:
                   - code: "404"
-                    description: "Parqueadero no encontrado"
+                    description: "Elemento no encontrado"
 
     internalServerErrorResponse:
       description: Error interno del servidor
@@ -911,3 +1119,77 @@ components:
                   - code: "500"
                     description: "Error interno del servidor"
 
+    notAcceptableResponse:
+      description: No aceptable
+      headers:
+        $ref: '#/components/schemas/SecurityHeaders'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            NotAcceptable:
+              value:
+                errors:
+                  - code: "406"
+                    description: "El encabezado Accept no incluye un tipo de medio soportado"
+
+    payloadTooLargeResponse:
+      description: Carga útil demasiado grande
+      headers:
+        $ref: '#/components/schemas/SecurityHeaders'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            PayloadTooLarge:
+              value:
+                errors:
+                  - code: "413"
+                    description: "La carga útil de la solicitud excede el límite permitido"
+
+    unsupportedMediaTypeResponse:
+      description: Tipo de medio no soportado
+      headers:
+        $ref: '#/components/schemas/SecurityHeaders'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            UnsupportedMediaType:
+              value:
+                errors:
+                  - code: "415"
+                    description: "El tipo de medio de la solicitud no está soportado"
+
+    tooManyRequestsResponse:
+      description: Demasiadas solicitudes
+      headers:
+        $ref: '#/components/schemas/SecurityHeaders'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            TooManyRequests:
+              value:
+                errors:
+                  - code: "429"
+                    description: "Se ha excedido el límite de tasa de solicitudes"
+
+    serviceUnavailableResponse:
+      description: Servicio no disponible
+      headers:
+        $ref: '#/components/schemas/SecurityHeaders'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            ServiceUnavailable:
+              value:
+                errors:
+                  - code: "503"
+                    description: "El servicio no está disponible temporalmente"
