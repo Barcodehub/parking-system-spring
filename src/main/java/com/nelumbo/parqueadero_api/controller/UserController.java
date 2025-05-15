@@ -28,7 +28,6 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "crear usuario", description = "Crea un usuario de rol SOCIO")
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequest) {
         UserResponseDTO createdUser = userService.createUser(userRequest);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
@@ -37,7 +36,6 @@ public class UserController {
 
 
     @GetMapping("/socio/parkings")
-    @Operation(summary = "Parqueaderos del Socio", description = "El socio puede ver listado de los parqueaderos que tiene asociados")
     public List<ParkingResponseDTO> getParkingsBySocio(
             @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -49,12 +47,11 @@ public class UserController {
 
 //de cualquiera rol admin
     @GetMapping("/parkings/{parkingId}/vehicles")
-    @Operation(summary = "Vehiculos de un parqueadero especifico", description = "El Admin Puede revisar listado/detalle de vehículos en un parqueadero en especifico")
     public List<AdminVehicleResponseDTO> getVehiclesInParking(
             @PathVariable Integer parkingId,
             @RequestParam(required = false) Boolean activeOnly) {
 
-        return parkingService.getVehiclesInParking(parkingId, activeOnly);
+        return parkingService.getVehiclesInParking(parkingId);
     }
 
     }

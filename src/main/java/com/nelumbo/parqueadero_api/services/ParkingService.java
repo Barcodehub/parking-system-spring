@@ -131,7 +131,7 @@ public class ParkingService {
 
 
     //vehiculos de un parking
-    public List<AdminVehicleResponseDTO> getVehiclesInParking(Integer parkingId, Boolean activeOnly) {
+    public List<AdminVehicleResponseDTO> getVehiclesInParking(Integer parkingId) {
         // Verificación de autorización
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
@@ -142,10 +142,8 @@ public class ParkingService {
         parkingRepository.findById(parkingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
 
-        // Consulta flexible (activos o todos)
-        List<Vehicle> vehicles = (activeOnly != null && activeOnly) ?
-                vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId) :
-                vehicleRepository.findByParqueaderoId(parkingId);
+        // Obtener solo vehículos actualmente parqueados
+        List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
 
         return vehicles.stream()
                 .map(this::convertToAdminVehicleDTO)
@@ -198,10 +196,8 @@ public class ParkingService {
         Parking parking = parkingRepository.findByIdAndSocioId(parkingId, currentUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado o no tienes permisos"));
 
-        // Consulta de vehículos (solo para este parqueadero del socio)
-        List<Vehicle> vehicles = (activeOnly != null && activeOnly) ?
-                vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId) :
-                vehicleRepository.findByParqueaderoId(parkingId);
+        List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
+
 
         return vehicles.stream()
                 .map(this::convertToAdminVehicleDTO)

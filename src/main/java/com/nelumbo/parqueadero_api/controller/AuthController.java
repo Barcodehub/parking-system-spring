@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Login", description = "This endpoint is used to authenticate a user and obtain an access token for further API requests. (ADMIN - SOCIO)")
 public class AuthController {
 
     private final AuthService authService;

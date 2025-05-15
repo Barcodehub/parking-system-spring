@@ -1,0 +1,913 @@
+openapi: "3.0.0"
+info:
+  title: Parking System
+  description: |
+    API para gestión de parqueaderos con autenticación de usuarios, registro de vehículos y análisis de datos.
+    Desarrollada con Spring Boot y PostgreSQL.
+  version: 1.0.0
+  termsOfService: https://tudominio.com/terms
+  contact:
+    name: Brayan Barco
+    url: alex.barco.maicol@gmail.com
+    email: alex.barco.maicol@gmail.com
+  x-products:
+    - id: parking-system
+      name: Parking System
+      description: API de gestión de parqueaderos inteligentes
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo local
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+  - url: http://localhost:8080
+    description: Servidor de QA
+  - url: http://localhost:8080
+    description: Servidor de producción
+security:
+  - Security_Token: []
+tags:
+  - name: Login
+    description: This endpoint is used to authenticate a user and obtain an access token for further API requests. (ADMIN - SOCIO)
+  - name: Email
+    description: (Admin) Simular enviar un correo a un Socio
+paths:
+  /api/parkings/{id}:
+    get:
+      tags:
+        - parking-controller
+      summary: Buscar Parqueadero
+      description: El Admin puede ver el detalle de un parqueadero especifico
+      operationId: getParkingById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ParkingResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+
+    put:
+      tags:
+        - parking-controller
+      summary: Editar Parqueaderos
+      description: El Admin puede editar parqueaderos
+      operationId: updateParking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ParkingResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    delete:
+      tags:
+        - parking-controller
+      summary: Eliminar Parqueaderos
+      description: El Admin puede eliminar parqueaderos
+      operationId: deleteParking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/vehicles/exit:
+    post:
+      tags:
+        - vehicle-controller
+      summary: Registrar salida de Vehiculo de un Parqueadero
+      description: El Socio puede registrar salida de vehículos por algún parqueadero, siempre y cuando el vehículo haya tenido una entrada.
+      operationId: registerVehicleExit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleExitRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/vehicles/entry:
+    post:
+      tags:
+        - vehicle-controller
+      summary: Registrar entrada de Vehiculo a un Parqueadero
+      description: |-
+        El Socio puede registrar entrada de vehículos por algún parqueadero.
+
+        Si el microservicio de email está en ejecución, se mostrará en los logs: 'Correo enviado'.
+      operationId: registerEntry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleEntryRequestDTO'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            '*/*':
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/users:
+    post:
+      tags:
+        - user-controller
+      summary: crear usuario
+      description: Crea un usuario de rol SOCIO
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/parkings:
+    get:
+      tags:
+        - parking-controller
+      summary: Listado - Parqueaderos
+      description: El Admin puede ver la lista de parqueaderos / El id es para cargar los de un Socio especifico
+      operationId: getAllParkings
+      parameters:
+        - name: socioId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    post:
+      tags:
+        - parking-controller
+      summary: crear Parqueadero
+      description: El Admin puede crear un parqueadero
+      operationId: createParking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingRequestDTO'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ParkingResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/auth/login:
+    post:
+      tags:
+        - Login
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/admin/emails:
+    post:
+      tags:
+        - Email
+      operationId: sendEmailToSocios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/users/socio/parkings:
+    get:
+      tags:
+        - user-controller
+      summary: Parqueaderos del Socio
+      description: El socio puede ver listado de los parqueaderos que tiene asociados
+      operationId: getParkingsBySocio
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/users/parkings/{parkingId}/vehicles:
+    get:
+      tags:
+        - user-controller
+      summary: Vehiculos de un parqueadero especifico
+      description: El Admin Puede revisar listado/detalle de vehículos en un parqueadero en especifico
+      operationId: getVehiclesInParking
+      parameters:
+        - name: parkingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminVehicleResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/parkings/socio/my-parkings/{parkingId}/vehicles:
+    get:
+      tags:
+        - parking-controller
+      summary: Vehiculos de un Parqueadero de mi propiedad
+      description: El Socio Puede ver listado/detalle de todos los vehículos en un parqueadero especifico que le pertenezca
+      operationId: getVehiclesInMyParking
+      parameters:
+        - name: parkingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminVehicleResponseDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/analityc/vehicles/top-global:
+    get:
+      tags:
+        - analityc-controller
+      summary: TopGlobal
+      description: Top 10 vehículos que más veces se han registrado en los diferentes
+      operationId: getTop10VehiclesGlobal
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleFrequencyDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/analityc/socios/top-earnings:
+    get:
+      tags:
+        - analityc-controller
+      summary: Top3 Socios con mas ganancias semanal
+      description: Top 3 de los socios con más ingresos de vehículos en la semana actual y mostrar la cantidad de vehículos
+      operationId: getTop3SociosByEarnings
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SocioEarningsDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/analityc/parkings/{id}/vehicles/top:
+    get:
+      tags:
+        - analityc-controller
+      summary: TopRegistro
+      description: Top 10 vehículos que más veces se han registrado en un parqueadero y cuantas veces han sido
+      operationId: getTop10VehiclesByParking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleFrequencyDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/analityc/parkings/{id}/vehicles/first-time:
+    get:
+      tags:
+        - analityc-controller
+      summary: Vehiculos por primera vez
+      description: Verificar de los vehículos parqueados cuales son por primera vez en ese parqueadero.
+      operationId: getFirstTimeVehicles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/analityc/parkings/{id}/earnings:
+    get:
+      tags:
+        - analityc-controller
+      summary: Ganancias mes/semana/año/hoy
+      description: Obtener las ganancias de hoy, esta semana, este mes, este año de un parqueadero en específico.
+      operationId: getParkingEarnings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ParkingEarningsDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /api/analityc/parkings/top-earnings:
+    get:
+      tags:
+        - analityc-controller
+      summary: Top3 Parqueaderos con mas ganancias semanal
+      description: Top 3 de los parqueaderos con mayor ganancia en la semana.
+      operationId: getTop3ParkingsByEarnings
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingTopEarningsDTO'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/unauthorizedResponse'
+        '403':
+          $ref: '#/components/responses/forbiddenResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+components:
+  schemas:
+    StandardError:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 2
+          maxLength: 20
+          description: Código del error
+          example: PERR100
+        description:
+          type: string
+          minLength: 2
+          maxLength: 250
+          description: Descripción del error
+          example: Error de validación
+        field:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Campo con error
+          example: email
+        traceId:
+          type: string
+          format: uuid
+          description: ID de traza para diagnóstico
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      required:
+        - code
+        - description
+
+    StandardErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/StandardError'
+      required:
+        - errors
+    ParkingRequestDTO:
+      type: object
+      properties:
+        nombre:
+          type: string
+        capacidad:
+          type: integer
+          format: int32
+        costoPorHora:
+          type: number
+        socioId:
+          type: integer
+          format: int32
+      required:
+        - socioId
+    ParkingResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        nombre:
+          type: string
+        capacidad:
+          type: integer
+          format: int32
+        costoPorHora:
+          type: number
+        socioId:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+    VehicleExitRequestDTO:
+      type: object
+      properties:
+        placa:
+          type: string
+          maxLength: 6
+          minLength: 6
+      required:
+        - placa
+    VehicleEntryRequestDTO:
+      type: object
+      properties:
+        placa:
+          type: string
+          maxLength: 6
+          minLength: 6
+          pattern: ^[A-Z0-9]*$
+        parqueaderoId:
+          type: integer
+          format: int64
+      required:
+        - parqueaderoId
+        - placa
+    UserRequestDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          maxLength: 2147483647
+          minLength: 6
+      required:
+        - email
+        - name
+        - password
+    UserResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - SOCIO
+        createdAt:
+          type: string
+          format: date-time
+    AuthRequestDTO:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    AuthResponseDTO:
+      type: object
+      properties:
+        token:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - SOCIO
+    EmailRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          minLength: 1
+        message:
+          type: string
+          minLength: 1
+        socioId:
+          type: integer
+          format: int32
+      required:
+        - message
+        - subject
+    AdminVehicleResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        placa:
+          type: string
+        fechaIngreso:
+          type: string
+          format: date-time
+        fechaSalida:
+          type: string
+          format: date-time
+        parqueaderoNombre:
+          type: string
+        socioNombre:
+          type: string
+    VehicleFrequencyDTO:
+      type: object
+      properties:
+        placa:
+          type: string
+        count:
+          type: integer
+          format: int64
+    SocioEarningsDTO:
+      type: object
+      properties:
+        socioName:
+          type: string
+        vehicleCount:
+          type: integer
+          format: int64
+        totalEarnings:
+          type: number
+    VehicleDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        placa:
+          type: string
+        fechaIngreso:
+          type: string
+          format: date-time
+        parqueaderoNombre:
+          type: string
+    ParkingEarningsDTO:
+      type: object
+      properties:
+        today:
+          type: number
+        week:
+          type: number
+        month:
+          type: number
+        year:
+          type: number
+    ParkingTopEarningsDTO:
+      type: object
+      properties:
+        parkingName:
+          type: string
+        totalEarnings:
+          type: number
+  securitySchemes:
+    Security_Token:
+      type: http
+      description: Access Token For My API
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    badRequestResponse:
+      description: Solicitud incorrecta
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            BadRequest:
+              value:
+                errors:
+                  - code: "400"
+                    description: "El campo 'email' es requerido"
+                    field: "email"
+                    traceId: "550e8400-e29b-41d4-a716-446655440000"
+
+    unauthorizedResponse:
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            Unauthorized:
+              value:
+                errors:
+                  - code: "401"
+                    description: "Token de acceso no válido o expirado"
+
+    forbiddenResponse:
+      description: Prohibido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            Forbidden:
+              value:
+                errors:
+                  - code: "403"
+                    description: "No tiene permisos para acceder a este recurso"
+
+    notFoundResponse:
+      description: No encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            NotFound:
+              value:
+                errors:
+                  - code: "404"
+                    description: "Parqueadero no encontrado"
+
+    internalServerErrorResponse:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardErrorResponse'
+          examples:
+            InternalError:
+              value:
+                errors:
+                  - code: "500"
+                    description: "Error interno del servidor"
+

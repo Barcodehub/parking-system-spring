@@ -24,7 +24,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/emails")
 @RequiredArgsConstructor
-@Tag(name = "Email", description = "(Admin) Simular enviar un correo a un Socio")
 public class EmailController {
 
     private final EmailService emailService;
