@@ -53,7 +53,8 @@ API para gestión de parqueaderos con autenticación de usuarios, registro de ve
 
 1. Requisitos previos:
     - Java 17+
-    - PostgreSQL 14+ corriendo
+    - PostgreSQL 14+ corriendo (puerto 5432 o ajustalo en properties)
+    - Tener en cuenta usuario y password de la base de datos posgres en properties (postgres)
 
 2. Crear una Base de datos llamada: parking_spring
 
