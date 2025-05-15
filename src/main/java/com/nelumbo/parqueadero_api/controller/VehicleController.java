@@ -23,7 +23,10 @@ public class VehicleController {
 
     @PostMapping("/entry")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Registrar entrada de Vehiculo a un Parqueadero", description = "El Socio puede registrar entrada de vehículos por algún parqueadero")
+    @Operation(
+            summary = "Registrar entrada de Vehiculo a un Parqueadero",
+            description = "El Socio puede registrar entrada de vehículos por algún parqueadero.\n\nSi el microservicio de email está en ejecución, se mostrará en los logs: 'Correo enviado'."
+    )
     public ResponseEntity<?> registerEntry(
             @RequestBody @Valid VehicleEntryRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
