@@ -1121,8 +1121,6 @@ components:
 
     notAcceptableResponse:
       description: No aceptable
-      headers:
-        $ref: '#/components/schemas/SecurityHeaders'
       content:
         application/json:
           schema:
@@ -1136,8 +1134,6 @@ components:
 
     payloadTooLargeResponse:
       description: Carga útil demasiado grande
-      headers:
-        $ref: '#/components/schemas/SecurityHeaders'
       content:
         application/json:
           schema:
@@ -1151,8 +1147,6 @@ components:
 
     unsupportedMediaTypeResponse:
       description: Tipo de medio no soportado
-      headers:
-        $ref: '#/components/schemas/SecurityHeaders'
       content:
         application/json:
           schema:
@@ -1166,8 +1160,6 @@ components:
 
     tooManyRequestsResponse:
       description: Demasiadas solicitudes
-      headers:
-        $ref: '#/components/schemas/SecurityHeaders'
       content:
         application/json:
           schema:
@@ -1181,8 +1173,6 @@ components:
 
     serviceUnavailableResponse:
       description: Servicio no disponible
-      headers:
-        $ref: '#/components/schemas/SecurityHeaders'
       content:
         application/json:
           schema:
