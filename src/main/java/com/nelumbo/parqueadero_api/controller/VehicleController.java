@@ -28,7 +28,7 @@ public class VehicleController {
             @AuthenticationPrincipal UserDetails userDetails) {
 
         Map<String, Integer> response = vehicleService.registerVehicleEntry(request, userDetails.getUsername());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 
