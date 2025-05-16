@@ -1,15 +1,19 @@
 package com.nelumbo.parqueadero_api.config;
 
+import com.nelumbo.parqueadero_api.exception.CustomAccessDeniedException;
 import com.nelumbo.parqueadero_api.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
@@ -27,6 +31,10 @@ public class SecurityConfig {
         return http
                 .csrf(csrf ->
                         csrf.disable())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler(customAccessDeniedHandler())
+                        .authenticationEntryPoint(authenticationEntryPoint())
+                )
                 .authorizeHttpRequests(authRequest ->
                         authRequest
                                 .requestMatchers("/api/auth/**").permitAll()
@@ -64,6 +72,35 @@ public class SecurityConfig {
                 .build();
 
 
+    }
+    @Bean
+    public AccessDeniedHandler customAccessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            response.setContentType("application/json");
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+
+            String message = "No tienes permisos para realizar esta acción";
+
+
+            response.getWriter().write(String.format(
+                    "{\"status\": %d, \"error\": \"Forbidden\", \"message\": \"%s\"}",
+                    HttpStatus.FORBIDDEN.value(),
+                    message
+            ));
+        };
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setContentType("application/json");
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write(String.format(
+                    "{\"status\": %d, \"error\": \"Unauthorized\", \"message\": \"%s\"}",
+                    HttpStatus.UNAUTHORIZED.value(),
+                    authException.getMessage()
+            ));
+        };
     }
 
 }

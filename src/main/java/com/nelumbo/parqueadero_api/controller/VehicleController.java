@@ -34,7 +34,7 @@ public class VehicleController {
 
 
     @PostMapping("/exit")
-    public ResponseEntity<?> registerVehicleExit(@RequestBody @Valid VehicleExitRequestDTO request) {
+    public ResponseEntity<?> registerVehicleExit(@RequestBody @Valid VehicleEntryRequestDTO request) {
         Map<String, String> response = vehicleService.registerVehicleExit(request);
         return ResponseEntity.ok(response);
     }

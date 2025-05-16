@@ -1,7 +1,9 @@
 package com.nelumbo.parqueadero_api.services;
 
 import com.nelumbo.parqueadero_api.dto.*;
+import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.Vehicle;
+import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,16 @@ public class AnalitycService {
 
     private final VehicleHistoryRepository vehicleHistoryRepository;
     private final VehicleRepository vehicleRepository;
+    private final ParkingRepository parkingRepository;
 
     public List<VehicleFrequencyDTO> getTop10MostFrequentVehicles() {
-        return vehicleHistoryRepository.findTop10MostFrequentVehicles().stream()
+        List<Object[]> results = vehicleHistoryRepository.findTop10MostFrequentVehicles();
+
+        if (results.isEmpty()) {
+            throw new ResourceNotFoundException("No hay vehículos frecuentes o no existen parqueaderos");
+        }
+
+        return results.stream()
                 .map(result -> new VehicleFrequencyDTO(
                         (String) result[0],
                         ((Number) result[1]).longValue()))
@@ -31,7 +40,14 @@ public class AnalitycService {
     }
 
     public List<VehicleFrequencyDTO> getTop10MostFrequentVehiclesByParking(Long parkingId) {
-        return vehicleHistoryRepository.findTop10ByParkingId(parkingId).stream()
+        List<Object[]> results = vehicleHistoryRepository.findTop10ByParkingId(parkingId);
+
+        if (results.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    String.format("No hay vehículos frecuentes en el parqueadero %d", parkingId));
+        }
+
+        return results.stream()
                 .map(result -> new VehicleFrequencyDTO(
                         (String) result[0],
                         ((Number) result[1]).longValue()))
@@ -39,19 +55,50 @@ public class AnalitycService {
     }
 
     public List<VehicleDTO> getFirstTimeVehicles(Long parkingId) {
+        List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(Math.toIntExact(parkingId));
+
+        if (!parkingRepository.existsById(Math.toIntExact(parkingId))) {
+            throw new ResourceNotFoundException("El parqueadero especificado no existe");
+        }
+        if (vehicles.isEmpty()) {
+            throw new ResourceNotFoundException("Actualmente no hay vehículos en este parqueadero");
+        }
+
         List<String> existingVehicles = vehicleHistoryRepository.findPlacasByParking(parkingId);
-        return vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(Math.toIntExact(parkingId)).stream()
+        List<VehicleDTO> firstTimeVehicles = vehicles.stream()
                 .filter(v -> !existingVehicles.contains(v.getPlaca()))
                 .map(this::convertToDTO)
                 .toList();
+
+        if (firstTimeVehicles.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    String.format("No hay vehículos por primera vez en el parqueadero %d", parkingId));
+        }
+
+        return firstTimeVehicles;
     }
 
     public ParkingEarningsDTO getParkingEarnings(Long parkingId) {
+
+        if (!parkingRepository.existsById(Math.toIntExact(parkingId))) {
+            throw new ResourceNotFoundException("El parqueadero especificado no existe");
+        }
+
+        BigDecimal today = vehicleHistoryRepository.findTodayEarnings(parkingId);
+        BigDecimal weekly = vehicleHistoryRepository.findWeeklyEarnings(parkingId);
+        BigDecimal monthly = vehicleHistoryRepository.findMonthlyEarnings(parkingId);
+        BigDecimal yearly = vehicleHistoryRepository.findYearlyEarnings(parkingId);
+
+        if (today == null && weekly == null && monthly == null && yearly == null) {
+            throw new ResourceNotFoundException(
+                    String.format("No se encontraron registros de ingresos para el parqueadero %d", parkingId));
+        }
+
         return new ParkingEarningsDTO(
-                Optional.ofNullable(vehicleHistoryRepository.findTodayEarnings(parkingId)).orElse(BigDecimal.ZERO),
-                Optional.ofNullable(vehicleHistoryRepository.findWeeklyEarnings(parkingId)).orElse(BigDecimal.ZERO),
-                Optional.ofNullable(vehicleHistoryRepository.findMonthlyEarnings(parkingId)).orElse(BigDecimal.ZERO),
-                Optional.ofNullable(vehicleHistoryRepository.findYearlyEarnings(parkingId)).orElse(BigDecimal.ZERO)
+                Optional.ofNullable(today).orElse(BigDecimal.ZERO),
+                Optional.ofNullable(weekly).orElse(BigDecimal.ZERO),
+                Optional.ofNullable(monthly).orElse(BigDecimal.ZERO),
+                Optional.ofNullable(yearly).orElse(BigDecimal.ZERO)
         );
     }
 
@@ -61,6 +108,11 @@ public class AnalitycService {
         LocalDateTime endOfWeek = startOfWeek.plusDays(7);
 
         List<Object[]> results = vehicleHistoryRepository.findTop3SociosByWeeklyEarnings(startOfWeek, endOfWeek);
+
+        if (results.isEmpty()) {
+            throw new ResourceNotFoundException("no hay datos de ingresos semanales para socios o no hay Socios registrados en el sistema ");
+        }
+
         return results.stream()
                 .map(result -> new SocioEarningsDTO(
                         (String) result[0],
@@ -76,6 +128,11 @@ public class AnalitycService {
         LocalDateTime endOfWeek = startOfWeek.plusDays(7);
 
         List<Object[]> results = vehicleHistoryRepository.findTop3ParkingsByWeeklyEarnings(startOfWeek, endOfWeek);
+
+        if (results.isEmpty()) {
+            throw new ResourceNotFoundException("No hay datos de ingresos semanales para parqueaderos o no hay parqueaderos registrados");
+        }
+
         return results.stream()
                 .map(result -> new ParkingTopEarningsDTO(
                         (String) result[0],

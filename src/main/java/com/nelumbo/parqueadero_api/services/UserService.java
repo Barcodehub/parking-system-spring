@@ -6,6 +6,8 @@ import com.nelumbo.parqueadero_api.exception.EmailAlreadyExistsException;
 import com.nelumbo.parqueadero_api.models.Role;
 import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,21 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+
 
     @Transactional
-    public UserResponseDTO createUser(UserRequestDTO userRequest) {
+    public UserResponseDTO createUser(@Valid UserRequestDTO userRequest) {
         // Verificar si el email ya existe
-        if (userRepository.existsByEmail(userRequest.email())) {
-            throw new EmailAlreadyExistsException("Email " + userRequest.email() + " already exists");
+        String email = userRequest.email().trim().toLowerCase();
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("El email " + email + " ya está registrado");
         }
 
         // Crear nuevo usuario

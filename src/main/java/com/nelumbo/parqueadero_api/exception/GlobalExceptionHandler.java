@@ -1,13 +1,11 @@
 package com.nelumbo.parqueadero_api.exception;
 
 
-import com.nelumbo.parqueadero_api.exception.EmailAlreadyExistsException;
-import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -76,6 +74,24 @@ public class GlobalExceptionHandler {
         Map<String, String> response = new HashMap<>();
         response.put("mensaje", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    @ExceptionHandler(CustomAccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleCustomAccessDenied(CustomAccessDeniedException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "403");
+        response.put("error", "Forbidden");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "403");
+        response.put("error", "Forbidden");
+        response.put("message", "Acceso denegado: No tienes los permisos necesarios");
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
 

@@ -40,9 +40,8 @@ public class ParkingController {
     }
 
     @GetMapping
-    public List<ParkingResponseDTO> getAllParkings(
-            @RequestParam(required = false) Integer socioId) {
-        return parkingService.getAllParkings(Optional.ofNullable(socioId));
+    public List<ParkingResponseDTO> getAllParkings() {
+        return parkingService.getAllParkings();
     }
 
     @PutMapping("/{id}")
@@ -66,9 +65,8 @@ public class ParkingController {
     @GetMapping("/socio/my-parkings/{parkingId}/vehicles")
     public List<AdminVehicleResponseDTO> getVehiclesInMyParking(
             @PathVariable Integer parkingId,
-            @RequestParam(required = false) Boolean activeOnly,
             @AuthenticationPrincipal UserDetails userDetails) {
-        return parkingService.getVehiclesInMyParking(parkingId, activeOnly, userDetails);
+        return parkingService.getVehiclesInMyParking(parkingId, userDetails);
     }
 
 

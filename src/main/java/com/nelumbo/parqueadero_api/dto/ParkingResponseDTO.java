@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record ParkingResponseDTO(
+
         Integer id,
         String nombre,
         Integer capacidad,

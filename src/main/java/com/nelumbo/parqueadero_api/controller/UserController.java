@@ -27,8 +27,7 @@ public class UserController {
     private final ParkingService parkingService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequest) {
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequest) {
         UserResponseDTO createdUser = userService.createUser(userRequest);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }

@@ -9,7 +9,7 @@ public record UserRequestDTO(
         String name,
 
         @NotBlank(message = "Email is required")
-        @Email(message = "Email should be valid")
+        @Email(message = "Email formato no valido")
         String email,
 
         @NotBlank(message = "Password is required")

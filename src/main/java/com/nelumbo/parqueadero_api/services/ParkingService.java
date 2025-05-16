@@ -13,6 +13,8 @@ import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -48,17 +50,25 @@ public class ParkingService {
 
     // Obtener por ID
     public ParkingResponseDTO getParkingById(Integer id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID de parqueadero inválido");
+        }
         Parking parking = parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
         return mapToDTO(parking);
     }
 
     // Listar todos (con filtro opcional por socio)
-    public List<ParkingResponseDTO> getAllParkings(Optional<Integer> socioId) {
-        List<Parking> parkings = socioId
-                .map(parkingRepository::findBySocioId)
-                .orElseGet(parkingRepository::findAll);
-        return parkings.stream().map(this::mapToDTO).toList();
+    public List<ParkingResponseDTO> getAllParkings() {
+        List<Parking> parkings = parkingRepository.findAll(); // Obtenemos todos sin filtros
+
+        if (parkings.isEmpty()) {
+            throw new ResourceNotFoundException("No hay parqueaderos registrados en el sistema");
+        }
+
+        return parkings.stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
     // Actualizar
@@ -70,7 +80,29 @@ public class ParkingService {
 //            throw new BusinessException("No puedes modificar un parqueadero de otro socio");
 //        }
 
-        validateUniqueParkingName(request.nombre(), Math.toIntExact(request.socioId()), id);
+
+        if (request.socioId() != null) {
+            User socio = userRepository.findById(request.socioId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            String.format("Socio con ID %d no encontrado", request.socioId()))
+                    );
+
+            // 3. Validar nombre único (excepto para el registro actual)
+            validateUniqueParkingName(
+                    request.nombre(),
+                    request.socioId(),
+                    id
+            );
+
+            parking.setSocio(socio);
+        } else {
+            // Si no viene socioId, mantener el socio actual
+            validateUniqueParkingName(
+                    request.nombre(),
+                    parking.getSocio() != null ? parking.getSocio().getId() : null,
+                    id
+            );
+        }
 
         parking.setNombre(request.nombre());
         parking.setCapacidad(request.capacidad());
@@ -132,18 +164,18 @@ public class ParkingService {
 
     //vehiculos de un parking
     public List<AdminVehicleResponseDTO> getVehiclesInParking(Integer parkingId) {
-        // Verificación de autorización
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-            throw new AccessDeniedException("Requiere rol ADMIN");
-        }
-
         // Verificar existencia del parqueadero
         parkingRepository.findById(parkingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
 
         // Obtener solo vehículos actualmente parqueados
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
+
+        if (vehicles.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "El parqueadero no tiene vehículos estacionados actualmente"
+            );
+        }
 
         return vehicles.stream()
                 .map(this::convertToAdminVehicleDTO)
@@ -162,12 +194,13 @@ public class ParkingService {
     }
 
     public List<ParkingResponseDTO> getParkingsBySocio(String email) {
-        // Verificación de autorización
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SOCIO"))) {
-            throw new AccessDeniedException("Requiere rol SOCIO");
-        }
+      List<Parking> parkings = parkingRepository.findBySocioEmail(email);
 
+        if (parkings.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No tienes parqueaderos Asociados"
+            );
+        }
         return parkingRepository.findBySocioEmail(email).stream()
                 .map(this::convertToParkingDTO)
                 .toList();
@@ -188,13 +221,22 @@ public class ParkingService {
 
 
 
-    public List<AdminVehicleResponseDTO> getVehiclesInMyParking(Integer parkingId, Boolean activeOnly, UserDetails userDetails) {
+    public List<AdminVehicleResponseDTO> getVehiclesInMyParking(Integer parkingId, UserDetails userDetails) {
+
         // Obtener el usuario autenticado
         User currentUser = (User) userDetails;
 
-        // Buscar el parqueadero y verificar que pertenece al socio
-        Parking parking = parkingRepository.findByIdAndSocioId(parkingId, currentUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado o no tienes permisos"));
+
+        // 2. Buscar el parqueadero y verificar propiedad
+        Parking parking = parkingRepository.findById(parkingId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("Parqueadero con ID %d no encontrado", parkingId)));
+
+        // 3. Verificar que el parqueadero pertenece al socio
+        if (!parking.getSocio().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException(
+                    "El parqueadero no pertenece a tu cuenta");
+        }
 
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
 

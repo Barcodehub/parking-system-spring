@@ -11,6 +11,7 @@ import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -78,24 +79,28 @@ public class VehicleService {
     }
 
 
-
     @Transactional
-    public Map<String, String> registerVehicleExit(VehicleExitRequestDTO request) {
+    public Map<String, String> registerVehicleExit(@Valid VehicleEntryRequestDTO request) {
         // Normalizar placa
         String placaNormalizada = request.placa().toUpperCase().trim();
 
-        // 1. Buscar vehículo activo
+        // 1. Buscar parqueadero
+        Parking parqueadero = parkingRepository.findById(Math.toIntExact(request.parqueaderoId()))
+                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
+
+        // 2. Buscar vehículo activo
         Vehicle vehicle = vehicleRepository.findByPlacaAndFechaSalidaIsNull(placaNormalizada)
                 .orElseThrow(() -> new BusinessException("No se puede Registrar Salida, no existe la placa en el parqueadero"));
 
-        // 2. Calcular costo
+
+        // 3. Calcular costo
         BigDecimal costo = calculateParkingFee(
                 vehicle.getFechaIngreso(),
                 LocalDateTime.now(),
                 vehicle.getParqueadero().getCostoPorHora()
         );
 
-        // 3. Registrar en historial
+        // 4. Registrar en historial
         VehicleHistory history = createHistoryRecord(vehicle, costo);
         historyRepository.save(history);
 
@@ -108,6 +113,8 @@ public class VehicleService {
 
         return Collections.singletonMap("mensaje", "Salida registrada");
     }
+
+
 
     private BigDecimal calculateParkingFee(LocalDateTime entryTime, LocalDateTime exitTime, BigDecimal hourlyRate) {
         long minutes = Duration.between(entryTime, exitTime).toMinutes();
@@ -125,8 +132,6 @@ public class VehicleService {
                 .costo(costo)
                 .build();
     }
-
-
 
     private void sendNotification(String email, String placa, String message, String parqueaderoId) {
         EmailRequest notificationRequest = new EmailRequest(

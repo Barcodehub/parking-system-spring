@@ -1,16 +1,18 @@
 package com.nelumbo.parqueadero_api.services;
 
+
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
-
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     public void sendEmail(String toEmail, String subject, String body) {
-        logger.info("Simulando envío de email a: {}", toEmail);
+       logger.info("Simulando envío de email a: {}", toEmail);
         logger.info("Asunto: {}", subject);
         logger.info("Cuerpo del mensaje:\n{}", body);
 
