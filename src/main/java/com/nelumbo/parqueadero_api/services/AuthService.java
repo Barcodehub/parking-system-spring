@@ -4,9 +4,11 @@ package com.nelumbo.parqueadero_api.services;
 import com.nelumbo.parqueadero_api.dto.AuthRequestDTO;
 import com.nelumbo.parqueadero_api.dto.AuthResponseDTO;
 import com.nelumbo.parqueadero_api.exception.AuthenticationFailedException;
+import com.nelumbo.parqueadero_api.exception.HandleInternalServerError;
 import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.security.JwtService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,11 +28,11 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthResponseDTO authenticate(AuthRequestDTO request) {
+    public AuthResponseDTO authenticate(@Valid AuthRequestDTO request) {
         try {
             // Primero obtenemos el usuario
             User user = userRepository.findByEmail(request.email())
-                    .orElseThrow(() -> new AuthenticationFailedException("User not found"));
+                    .orElseThrow(() -> new AuthenticationFailedException("Usuario NO encontrado para ese E-mail"));
 
             // Autenticación con Spring Security
             Authentication authentication = authenticationManager.authenticate(
@@ -50,11 +52,15 @@ public class AuthService {
                     user.getRole()
             );
 
+        } catch (AuthenticationFailedException e) {
+            // Esto capturará específicamente cuando el usuario no existe
+            throw new AuthenticationFailedException(e.getMessage());
         } catch (BadCredentialsException e) {
-            throw new AuthenticationFailedException("Invalid email or password");
+            // Esto capturará cuando la contraseña es incorrecta
+            throw new AuthenticationFailedException("Contraseña incorrecta");
         } catch (Exception e) {
             e.printStackTrace();
-            throw new AuthenticationFailedException("Authentication failed: " + e.getMessage());
+            throw new HandleInternalServerError("Authentication failed: " + e.getMessage());
         }
     }
 }
