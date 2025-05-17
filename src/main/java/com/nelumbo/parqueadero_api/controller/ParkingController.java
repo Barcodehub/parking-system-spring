@@ -44,8 +44,10 @@ public class ParkingController {
     }
 
     @GetMapping
-    public ResponseEntity<SuccessResponseDTO<List<ParkingResponseDTO>>> getAllParkings() {
-        SuccessResponseDTO<List<ParkingResponseDTO>> response = parkingService.getAllParkings();
+    public ResponseEntity<SuccessResponseDTO<List<ParkingResponseDTO>>> getAllParkings(
+            @AuthenticationPrincipal UserDetails userDetails) { // Inyecta el usuario autenticado
+        SuccessResponseDTO<List<ParkingResponseDTO>> response =
+                parkingService.getAllParkingsFiltered(userDetails); // Lógica delegada al servicio
         return ResponseEntity.ok(response);
     }
 
@@ -80,5 +82,16 @@ public class ParkingController {
     }
 
 
+
+    @GetMapping("parkings/{parkingId}/vehicles")
+    public ResponseEntity<SuccessResponseDTO<VehicleValidationResponseDTO>> getVehiclesInParking(
+            @PathVariable Integer parkingId,
+            @AuthenticationPrincipal UserDetails userDetails) {  // userDetails será null si no está autenticado (o usar @RequestParam)
+
+        SuccessResponseDTO<VehicleValidationResponseDTO> response =
+                parkingService.getVehiclesInParking(parkingId, userDetails);
+
+        return ResponseEntity.ok(response);
+    }
 
 }

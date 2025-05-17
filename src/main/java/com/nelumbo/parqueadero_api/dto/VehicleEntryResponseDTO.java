@@ -5,6 +5,7 @@ import com.nelumbo.parqueadero_api.dto.errors.WarningDTO;
 
 import java.util.List;
 
+
 public record VehicleEntryResponseDTO(
         String flag,
         List<WarningDTO> warnings,

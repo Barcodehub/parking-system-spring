@@ -32,16 +32,7 @@ public class UserController {
         SuccessResponseDTO<UserResponseDTO> response = userService.createUser(userRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-
-
-    @GetMapping("/socio/parkings")
-    public List<ParkingResponseDTO> getParkingsBySocio(
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        return parkingService.getParkingsBySocio(userDetails.getUsername());
-    }
-
+    
 
 
 

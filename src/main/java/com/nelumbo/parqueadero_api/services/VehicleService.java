@@ -16,12 +16,15 @@ import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
+import com.nelumbo.parqueadero_api.validation.annotations.ParqueaderoTieneEspacio;
+import com.nelumbo.parqueadero_api.validation.annotations.VehiculoNoRegistradoActualmente;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -31,6 +34,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
@@ -43,7 +47,7 @@ public class VehicleService {
     private String notificationServiceUrl;
 
     @Transactional
-    public SuccessResponseDTO<VehicleEntryResponseDTO> registerVehicleEntry(@Valid VehicleEntryRequestDTO request, String userEmail) {
+    public SuccessResponseDTO<VehicleEntryResponseDTO> registerVehicleEntry(@Valid @ParqueaderoTieneEspacio VehicleEntryRequestDTO request, String userEmail) {
         // 1. Normalización de placa
         String placaNormalizada = request.placa().toUpperCase().trim();
 
@@ -54,15 +58,6 @@ public class VehicleService {
         User socio = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        // 3. Validar capacidad
-        if (vehicleRepository.countActiveVehiclesInParking(Long.valueOf(parqueadero.getId())) >= parqueadero.getCapacidad()) {
-            throw new BusinessRuleException("PARK_001", "Capacidad máxima alcanzada");
-        }
-
-        // 4. Validar duplicados
-        if (vehicleRepository.existsByPlacaAndFechaSalidaIsNull(placaNormalizada)) {
-            throw new BusinessRuleException("VEH_001", "Vehículo ya registrado en este u otro parqueadero");
-        }
 
         // 5. Crear registro
         Vehicle vehicle = Vehicle.builder()
@@ -93,10 +88,6 @@ public class VehicleService {
     public SuccessResponseDTO<VehicleExitResultDTO> registerVehicleExit(@Valid VehicleExitRequestDTO request) {        // Normalizar placa
         String placaNormalizada = request.placa().toUpperCase().trim();
 
-        // 2. Buscar parqueadero
-        Parking parqueadero = parkingRepository.findById(Math.toIntExact(request.parqueaderoId()))
-                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
-
         // 3. Buscar vehículo activo
         Vehicle vehicle = vehicleRepository.findByPlacaAndFechaSalidaIsNull(placaNormalizada)
                 .orElseThrow(() -> new BusinessRuleException("VEH_002", "Vehículo no encontrado en el parqueadero"));
@@ -111,10 +102,6 @@ public class VehicleService {
         // 4. Registrar en historial
         VehicleHistory history = createHistoryRecord(vehicle, costo);
         historyRepository.save(history);
-
-        // 4. Actualizar registro del vehículo con fecha de salida (en lugar de eliminarlo)
-//        vehicle.setFechaSalida(LocalDateTime.now());
-//        vehicleRepository.save(vehicle);
 
         // 4. Eliminar registro activo
         vehicleRepository.delete(vehicle);

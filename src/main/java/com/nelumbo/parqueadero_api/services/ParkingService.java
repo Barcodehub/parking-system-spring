@@ -65,16 +65,39 @@ public class ParkingService {
     }
 
     // Listar todos (con filtro opcional por socio)
-    public SuccessResponseDTO<List<ParkingResponseDTO>> getAllParkings() {
-        List<Parking> parkings = parkingRepository.findAll();
+    public SuccessResponseDTO<List<ParkingResponseDTO>> getAllParkingsFiltered(UserDetails userDetails) {
+        boolean isSocio = userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_SOCIO")); // Asegúrate de que el rol tenga el prefijo correcto (ej. "ROLE_")
 
-        // Si no hay parkings, devolvemos lista vacía en data (no es realmente un error)
+        List<Parking> parkings;
+
+        if (isSocio) {
+            parkings = parkingRepository.findBySocioEmail(userDetails.getUsername());
+        } else {
+            parkings = parkingRepository.findAll(); // ADMIN o otros roles ven todo
+        }
+
         List<ParkingResponseDTO> responseList = parkings.stream()
                 .map(this::mapToDTO)
                 .toList();
 
         return new SuccessResponseDTO<>(responseList);
     }
+
+    public SuccessResponseDTO<List<ParkingResponseDTO>> getParkingsBySocioEmail(String email) {
+        List<Parking> parkings = parkingRepository.findBySocioEmail(email);
+
+        if (parkings.isEmpty()) {
+            throw new ResourceNotFoundException("No tienes parqueaderos asociados");
+        }
+
+        List<ParkingResponseDTO> responseList = parkings.stream()
+                .map(this::mapToDTO)
+                .toList();
+
+        return new SuccessResponseDTO<>(responseList);
+    }
+
 
     // Actualizar
     public SuccessResponseDTO<ParkingResponseDTO> updateParking(Integer id, ParkingRequestDTO request) {
@@ -171,6 +194,57 @@ public class ParkingService {
     }
 
 
+
+
+
+    public SuccessResponseDTO<VehicleValidationResponseDTO> getVehiclesInParking(
+            Integer parkingId,
+            UserDetails userDetails) {  // userDetails puede ser null (para admin)
+
+        // 1. Verificar si el parqueadero existe
+        Parking parking = parkingRepository.findById(parkingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
+
+        // 2. Si el usuario es SOCIO, verificar que el parqueadero le pertenezca
+        if (userDetails != null && userDetails.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_SOCIO"))) {
+
+            User currentUser = (User) userDetails;
+            if (!parking.getSocio().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("No tienes acceso a este parqueadero");
+            }
+        }
+
+        // 3. Obtener vehículos (lógica común)
+        List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
+        List<AdminVehicleResponseDTO> vehicleDTOs = vehicles.stream()
+                .map(this::convertToAdminVehicleDTO)
+                .toList();
+
+        // 4. Construir respuesta (adaptable para ambos casos)
+        List<WarningDTO> warnings = new ArrayList<>();
+        if (vehicles.isEmpty()) {
+            warnings.add(new WarningDTO("VEH_001", "No hay vehículos estacionados"));
+        }
+
+        VehicleValidationResponseDTO responseData = new VehicleValidationResponseDTO(
+                vehicleDTOs,
+                vehicles.isEmpty() ? "AMARILLA" : "VERDE",
+                warnings,
+                Collections.emptyList()
+        );
+
+        return new SuccessResponseDTO<>(responseData);
+    }
+
+
+
+
+
+
+
+
+
     //vehiculos de un parking
     public List<AdminVehicleResponseDTO> getVehiclesInParking(Integer parkingId) {
         // Verificar existencia del parqueadero
@@ -201,31 +275,6 @@ public class ParkingService {
                 vehicle.getSocio().getName()
         );
     }
-
-    public List<ParkingResponseDTO> getParkingsBySocio(String email) {
-      List<Parking> parkings = parkingRepository.findBySocioEmail(email);
-
-        if (parkings.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "No tienes parqueaderos Asociados"
-            );
-        }
-        return parkingRepository.findBySocioEmail(email).stream()
-                .map(this::convertToParkingDTO)
-                .toList();
-    }
-
-    private ParkingResponseDTO convertToParkingDTO(Parking parking) {
-        return new ParkingResponseDTO(
-                parking.getId(),
-                parking.getNombre(),
-                parking.getCapacidad(),
-                parking.getCostoPorHora(),
-                parking.getSocio().getId(),
-                parking.getCreatedAt()
-        );
-    }
-
 
 
 
