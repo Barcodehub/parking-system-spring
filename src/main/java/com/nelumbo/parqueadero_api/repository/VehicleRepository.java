@@ -12,7 +12,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
     boolean existsByPlacaAndFechaSalidaIsNull(String placa);
 
     @Query("SELECT COUNT(v) FROM Vehicle v WHERE v.parqueadero.id = :parqueaderoId AND v.fechaSalida IS NULL")
-    int countActiveVehiclesInParking(Long parqueaderoId);
+    int countActiveVehiclesInParking(Integer parqueaderoId);
 
     Optional<Vehicle> findByPlacaAndFechaSalidaIsNull(String placa);
     List<Vehicle> findByParqueaderoIdAndFechaSalidaIsNull(Integer parqueaderoId);

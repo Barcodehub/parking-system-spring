@@ -66,23 +66,6 @@ public class ParkingController {
     }
 
 
-
-
-//que le pertenezca al socio autenticado
-
-    @GetMapping("/socio/my-parkings/{parkingId}/vehicles")
-    public ResponseEntity<SuccessResponseDTO<VehicleValidationResponseDTO>> getVehiclesInMyParking(
-            @PathVariable Integer parkingId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        SuccessResponseDTO<VehicleValidationResponseDTO> response =
-                parkingService.getVehiclesInMyParking(parkingId, userDetails);
-
-        return ResponseEntity.ok(response);
-    }
-
-
-
     @GetMapping("parkings/{parkingId}/vehicles")
     public ResponseEntity<SuccessResponseDTO<VehicleValidationResponseDTO>> getVehiclesInParking(
             @PathVariable Integer parkingId,

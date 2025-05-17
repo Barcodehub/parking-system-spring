@@ -26,7 +26,7 @@ public class ParqueaderoTieneEspacioValidator implements
 
         return parkingRepository.findById(request.parqueaderoId().intValue())
                 .map(parqueadero -> {
-                    long vehiculosActivos = vehicleRepository.countActiveVehiclesInParking(request.parqueaderoId());
+                    long vehiculosActivos = vehicleRepository.countActiveVehiclesInParking(Math.toIntExact(request.parqueaderoId()));
                     boolean tieneEspacio = vehiculosActivos < parqueadero.getCapacidad();
 
                     if (!tieneEspacio) {

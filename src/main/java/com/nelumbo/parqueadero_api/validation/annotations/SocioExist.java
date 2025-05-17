@@ -1,16 +1,16 @@
 package com.nelumbo.parqueadero_api.validation.annotations;
 
-import com.nelumbo.parqueadero_api.validation.validators.ParkingExistValidator;
+import com.nelumbo.parqueadero_api.validation.validators.SocioExistValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = ParkingExistValidator.class)
-@Target({ElementType.TYPE, ElementType.PARAMETER})
+@Constraint(validatedBy = SocioExistValidator.class)
+@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ParkingExist {
-    String message() default "El parqueadero no existe";
+public @interface SocioExist {
+    String message() default "El socio no existe";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

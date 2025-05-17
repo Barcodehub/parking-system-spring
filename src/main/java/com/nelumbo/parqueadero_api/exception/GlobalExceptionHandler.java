@@ -5,6 +5,7 @@ import com.nelumbo.parqueadero_api.dto.errors.ErrorDetailDTO;
 import com.nelumbo.parqueadero_api.dto.errors.ErrorResponseDTO;
 import com.nelumbo.parqueadero_api.dto.errors.RejectionDTO;
 import com.nelumbo.parqueadero_api.dto.errors.ValidationDataDTO;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -97,6 +98,19 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleConstraintViolation(ConstraintViolationException ex) {
+        List<ErrorDetailDTO> errors = ex.getConstraintViolations().stream()
+                .map(v -> new ErrorDetailDTO(
+                        "400",  // Bad Request
+                        v.getMessage(),
+                        v.getPropertyPath().toString().split("\\.")[1],
+                        null))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(null, errors));
+    }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorResponseDTO> handleEmailExists(EmailAlreadyExistsException ex) {

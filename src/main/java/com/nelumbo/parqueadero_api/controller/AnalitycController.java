@@ -28,20 +28,20 @@ public class AnalitycController {
 
     @GetMapping("/parkings/{id}/vehicles/top")
     public ResponseEntity<SuccessResponseDTO<List<VehicleFrequencyDTO>>> getTop10VehiclesByParking(
-            @PathVariable Long id) {
+            @PathVariable Integer id) {
         SuccessResponseDTO<List<VehicleFrequencyDTO>> response =
                 reportService.getTop10MostFrequentVehiclesByParking(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/parkings/{id}/vehicles/first-time")
-    public ResponseEntity<SuccessResponseDTO<List<VehicleDTO>>> getFirstTimeVehicles(@PathVariable Long id) {
+    public ResponseEntity<SuccessResponseDTO<List<VehicleDTO>>> getFirstTimeVehicles(@PathVariable Integer id) {
         SuccessResponseDTO<List<VehicleDTO>> response = reportService.getFirstTimeVehicles(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/parkings/{id}/earnings")
-    public ResponseEntity<SuccessResponseDTO<?>> getParkingEarnings(@PathVariable Long id) {
+    public ResponseEntity<SuccessResponseDTO<?>> getParkingEarnings(@PathVariable Integer id) {
         SuccessResponseDTO<?> response = reportService.getParkingEarnings(id);
         return ResponseEntity.ok(response);
     }

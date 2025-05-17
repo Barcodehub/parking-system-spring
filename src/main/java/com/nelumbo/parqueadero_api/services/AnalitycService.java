@@ -7,8 +7,11 @@ import com.nelumbo.parqueadero_api.models.Vehicle;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
+import com.nelumbo.parqueadero_api.validation.annotations.ParkingExist;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
@@ -20,6 +23,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class AnalitycService {
 
     private final VehicleHistoryRepository vehicleHistoryRepository;
@@ -35,29 +39,21 @@ public class AnalitycService {
                         ((Number) result[1]).longValue()))
                 .toList();
 
-        // Si la lista está vacía, devolvemos data vacía (no es un error)
-        //return new SuccessResponseDTO<>(responseList);
-
-        // O si prefieres considerar lista vacía como error:
          if (responseList.isEmpty()) {
              throw new ResourceNotFoundException("No hay vehículos frecuentes o no existen parqueaderos");
          }
          return new SuccessResponseDTO<>(responseList);
     }
 
-    public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehiclesByParking(Long parkingId) {
-        List<Object[]> results = vehicleHistoryRepository.findTop10ByParkingId(parkingId);
+    public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehiclesByParking(@ParkingExist Integer parkingId) {
+
+        List<Object[]> results = vehicleHistoryRepository.findTop10ByParkingId(Long.valueOf(parkingId));
 
         List<VehicleFrequencyDTO> vehicles = results.stream()
                 .map(result -> new VehicleFrequencyDTO(
                         (String) result[0],
                         ((Number) result[1]).longValue()))
                 .toList();
-
-        // Si quieres manejar lista vacía como caso válido (recomendado)
-       // return new SuccessResponseDTO<>(vehicles);
-
-        // O si prefieres mantenerlo como error (como en tu código original)
 
     if (vehicles.isEmpty()) {
         throw new ResourceNotFoundException(
@@ -67,17 +63,14 @@ public class AnalitycService {
 
     }
 
-    public SuccessResponseDTO<List<VehicleDTO>> getFirstTimeVehicles(Long parkingId) {
+    public SuccessResponseDTO<List<VehicleDTO>> getFirstTimeVehicles(@ParkingExist Integer  parkingId) {
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(Math.toIntExact(parkingId));
 
-        if (!parkingRepository.existsById(Math.toIntExact(parkingId))) {
-            throw new ResourceNotFoundException("El parqueadero especificado no existe");
-        }
         if (vehicles.isEmpty()) {
             throw new ResourceNotFoundException("Actualmente no hay vehículos en este parqueadero");
         }
 
-        List<String> existingVehicles = vehicleHistoryRepository.findPlacasByParking(parkingId);
+        List<String> existingVehicles = vehicleHistoryRepository.findPlacasByParking(Long.valueOf(parkingId));
         List<VehicleDTO> firstTimeVehicles = vehicles.stream()
                 .filter(v -> !existingVehicles.contains(v.getPlaca()))
                 .map(this::convertToDTO)
@@ -91,16 +84,12 @@ public class AnalitycService {
         return new SuccessResponseDTO<>(firstTimeVehicles);
     }
 
-    public SuccessResponseDTO<ParkingEarningsDTO> getParkingEarnings(Long parkingId) {
+    public SuccessResponseDTO<ParkingEarningsDTO> getParkingEarnings(@ParkingExist Integer parkingId) {
 
-        if (!parkingRepository.existsById(Math.toIntExact(parkingId))) {
-            throw new ResourceNotFoundException("El parqueadero especificado no existe");
-        }
-
-        BigDecimal today = vehicleHistoryRepository.findTodayEarnings(parkingId);
-        BigDecimal weekly = vehicleHistoryRepository.findWeeklyEarnings(parkingId);
-        BigDecimal monthly = vehicleHistoryRepository.findMonthlyEarnings(parkingId);
-        BigDecimal yearly = vehicleHistoryRepository.findYearlyEarnings(parkingId);
+        BigDecimal today = vehicleHistoryRepository.findTodayEarnings(Long.valueOf(parkingId));
+        BigDecimal weekly = vehicleHistoryRepository.findWeeklyEarnings(Long.valueOf(parkingId));
+        BigDecimal monthly = vehicleHistoryRepository.findMonthlyEarnings(Long.valueOf(parkingId));
+        BigDecimal yearly = vehicleHistoryRepository.findYearlyEarnings(Long.valueOf(parkingId));
 
         if (today == null && weekly == null && monthly == null && yearly == null) {
             throw new ResourceNotFoundException(
