@@ -51,13 +51,11 @@ public class VehicleService {
         // 1. Normalización de placa
         String placaNormalizada = request.placa().toUpperCase().trim();
 
-        // 2. Buscar recursos
-        Parking parqueadero = parkingRepository.findById(Math.toIntExact(request.parqueaderoId()))
-                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
 
         User socio = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
+        Parking parqueadero = parkingRepository.findById(request.parqueaderoId()).get();
 
         // 5. Crear registro
         Vehicle vehicle = Vehicle.builder()
@@ -88,9 +86,10 @@ public class VehicleService {
     public SuccessResponseDTO<VehicleExitResultDTO> registerVehicleExit(@Valid VehicleExitRequestDTO request) {        // Normalizar placa
         String placaNormalizada = request.placa().toUpperCase().trim();
 
-        // 3. Buscar vehículo activo
+        // 3. Vehiculo ya salió
         Vehicle vehicle = vehicleRepository.findByPlacaAndFechaSalidaIsNull(placaNormalizada)
                 .orElseThrow(() -> new BusinessRuleException("VEH_002", "Vehículo no encontrado en el parqueadero"));
+
 
         // 3. Calcular costo
         BigDecimal costo = calculateParkingFee(

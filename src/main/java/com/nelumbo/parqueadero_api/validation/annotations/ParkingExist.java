@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 
 @Documented
 @Constraint(validatedBy = ParkingExistValidator.class)
-@Target({ElementType.TYPE, ElementType.PARAMETER})
+@Target({ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ParkingExist {
     String message() default "El parqueadero no existe";

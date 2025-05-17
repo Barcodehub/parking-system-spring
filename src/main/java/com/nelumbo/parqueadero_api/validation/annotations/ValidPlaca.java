@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPlaca {
-    String message() default "La placa debe tener 6 caracteres alfanuméricos sin ñ ni caracteres especiales";
+    String message() default "La placa debe tener 6 caracteres alfanuméricos sin ñ ni caracteres especiales Y EN MAYUSCULAS";
 
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

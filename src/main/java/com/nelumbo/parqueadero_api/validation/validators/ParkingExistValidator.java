@@ -5,6 +5,7 @@ import com.nelumbo.parqueadero_api.validation.annotations.ParkingExist;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,13 +17,25 @@ public class ParkingExistValidator implements ConstraintValidator<ParkingExist, 
     @Override
     public boolean isValid(Integer parkingId, ConstraintValidatorContext context) {
         if (parkingId == null) {
+            buildValidationError(context, "El ID de parqueadero no puede ser nulo");
             return false;
         }
+
         try {
-            return parkingRepository.existsById(parkingId);
+            if (!parkingRepository.existsById(parkingId)) {
+                buildValidationError(context, "No existe un parqueadero con ID " + parkingId);
+                return false;
+            }
+            return true;
         } catch (Exception e) {
-            // Log del error
+            buildValidationError(context, "Error al validar el parqueadero: " + e.getMessage());
             return false;
         }
+    }
+
+    private void buildValidationError(ConstraintValidatorContext context, String message) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(message)
+                .addConstraintViolation();
     }
 }
