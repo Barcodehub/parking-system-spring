@@ -1,9 +1,11 @@
 package com.nelumbo.parqueadero_api.controller;
 
 import com.nelumbo.parqueadero_api.dto.*;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.services.AnalitycService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,33 +21,41 @@ public class AnalitycController {
     private final AnalitycService reportService;
 
     @GetMapping("/vehicles/top-global")
-    public List<VehicleFrequencyDTO> getTop10VehiclesGlobal() {
-        return reportService.getTop10MostFrequentVehicles();
+    public ResponseEntity<SuccessResponseDTO<List<VehicleFrequencyDTO>>> getTop10VehiclesGlobal() {
+        SuccessResponseDTO<List<VehicleFrequencyDTO>> response = reportService.getTop10MostFrequentVehicles();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/parkings/{id}/vehicles/top")
-    public List<VehicleFrequencyDTO> getTop10VehiclesByParking(@PathVariable Long id) {
-        return reportService.getTop10MostFrequentVehiclesByParking(id);
+    public ResponseEntity<SuccessResponseDTO<List<VehicleFrequencyDTO>>> getTop10VehiclesByParking(
+            @PathVariable Long id) {
+        SuccessResponseDTO<List<VehicleFrequencyDTO>> response =
+                reportService.getTop10MostFrequentVehiclesByParking(id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/parkings/{id}/vehicles/first-time")
-    public List<VehicleDTO> getFirstTimeVehicles(@PathVariable Long id) {
-        return reportService.getFirstTimeVehicles(id);
+    public ResponseEntity<SuccessResponseDTO<List<VehicleDTO>>> getFirstTimeVehicles(@PathVariable Long id) {
+        SuccessResponseDTO<List<VehicleDTO>> response = reportService.getFirstTimeVehicles(id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/parkings/{id}/earnings")
-    public ParkingEarningsDTO getParkingEarnings(@PathVariable Long id) {
-        return reportService.getParkingEarnings(id);
+    public ResponseEntity<SuccessResponseDTO<?>> getParkingEarnings(@PathVariable Long id) {
+        SuccessResponseDTO<?> response = reportService.getParkingEarnings(id);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/socios/top-earnings")
-    public List<SocioEarningsDTO> getTop3SociosByEarnings() {
-        return reportService.getTop3SociosByWeeklyEarnings();
+    public ResponseEntity<SuccessResponseDTO<List<SocioEarningsDTO>>> getTop3SociosByEarnings() {
+        SuccessResponseDTO<List<SocioEarningsDTO>> response = reportService.getTop3SociosByWeeklyEarnings();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/parkings/top-earnings")
-    public List<ParkingTopEarningsDTO> getTop3ParkingsByEarnings() {
-        return reportService.getTop3ParkingsByWeeklyEarnings();
+    public ResponseEntity<SuccessResponseDTO<List<ParkingTopEarningsDTO>>> getTop3ParkingsByEarnings() {
+        SuccessResponseDTO<List<ParkingTopEarningsDTO>> response = reportService.getTop3ParkingsByWeeklyEarnings();
+        return ResponseEntity.ok(response);
     }
 
 

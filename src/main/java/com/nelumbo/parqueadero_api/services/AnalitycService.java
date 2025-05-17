@@ -1,6 +1,7 @@
 package com.nelumbo.parqueadero_api.services;
 
 import com.nelumbo.parqueadero_api.dto.*;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.Vehicle;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
@@ -25,36 +26,48 @@ public class AnalitycService {
     private final VehicleRepository vehicleRepository;
     private final ParkingRepository parkingRepository;
 
-    public List<VehicleFrequencyDTO> getTop10MostFrequentVehicles() {
+    public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehicles() {
         List<Object[]> results = vehicleHistoryRepository.findTop10MostFrequentVehicles();
 
-        if (results.isEmpty()) {
-            throw new ResourceNotFoundException("No hay vehículos frecuentes o no existen parqueaderos");
-        }
-
-        return results.stream()
+        List<VehicleFrequencyDTO> responseList = results.stream()
                 .map(result -> new VehicleFrequencyDTO(
                         (String) result[0],
                         ((Number) result[1]).longValue()))
                 .toList();
+
+        // Si la lista está vacía, devolvemos data vacía (no es un error)
+        //return new SuccessResponseDTO<>(responseList);
+
+        // O si prefieres considerar lista vacía como error:
+         if (responseList.isEmpty()) {
+             throw new ResourceNotFoundException("No hay vehículos frecuentes o no existen parqueaderos");
+         }
+         return new SuccessResponseDTO<>(responseList);
     }
 
-    public List<VehicleFrequencyDTO> getTop10MostFrequentVehiclesByParking(Long parkingId) {
+    public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehiclesByParking(Long parkingId) {
         List<Object[]> results = vehicleHistoryRepository.findTop10ByParkingId(parkingId);
 
-        if (results.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    String.format("No hay vehículos frecuentes en el parqueadero %d", parkingId));
-        }
-
-        return results.stream()
+        List<VehicleFrequencyDTO> vehicles = results.stream()
                 .map(result -> new VehicleFrequencyDTO(
                         (String) result[0],
                         ((Number) result[1]).longValue()))
                 .toList();
+
+        // Si quieres manejar lista vacía como caso válido (recomendado)
+       // return new SuccessResponseDTO<>(vehicles);
+
+        // O si prefieres mantenerlo como error (como en tu código original)
+
+    if (vehicles.isEmpty()) {
+        throw new ResourceNotFoundException(
+                String.format("No hay vehículos frecuentes en el parqueadero %d", parkingId));
+    }
+    return new SuccessResponseDTO<>(vehicles);
+
     }
 
-    public List<VehicleDTO> getFirstTimeVehicles(Long parkingId) {
+    public SuccessResponseDTO<List<VehicleDTO>> getFirstTimeVehicles(Long parkingId) {
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(Math.toIntExact(parkingId));
 
         if (!parkingRepository.existsById(Math.toIntExact(parkingId))) {
@@ -75,10 +88,10 @@ public class AnalitycService {
                     String.format("No hay vehículos por primera vez en el parqueadero %d", parkingId));
         }
 
-        return firstTimeVehicles;
+        return new SuccessResponseDTO<>(firstTimeVehicles);
     }
 
-    public ParkingEarningsDTO getParkingEarnings(Long parkingId) {
+    public SuccessResponseDTO<ParkingEarningsDTO> getParkingEarnings(Long parkingId) {
 
         if (!parkingRepository.existsById(Math.toIntExact(parkingId))) {
             throw new ResourceNotFoundException("El parqueadero especificado no existe");
@@ -94,16 +107,17 @@ public class AnalitycService {
                     String.format("No se encontraron registros de ingresos para el parqueadero %d", parkingId));
         }
 
-        return new ParkingEarningsDTO(
+        ParkingEarningsDTO earningsDTO = new ParkingEarningsDTO(
                 Optional.ofNullable(today).orElse(BigDecimal.ZERO),
                 Optional.ofNullable(weekly).orElse(BigDecimal.ZERO),
                 Optional.ofNullable(monthly).orElse(BigDecimal.ZERO),
                 Optional.ofNullable(yearly).orElse(BigDecimal.ZERO)
         );
+
+        return new SuccessResponseDTO<>(earningsDTO);
     }
 
-    public List<SocioEarningsDTO> getTop3SociosByWeeklyEarnings() {
-        LocalDateTime now = LocalDateTime.now();
+    public SuccessResponseDTO<List<SocioEarningsDTO>> getTop3SociosByWeeklyEarnings() {        LocalDateTime now = LocalDateTime.now();
         LocalDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).with(LocalTime.MIN);
         LocalDateTime endOfWeek = startOfWeek.plusDays(7);
 
@@ -113,17 +127,17 @@ public class AnalitycService {
             throw new ResourceNotFoundException("no hay datos de ingresos semanales para socios o no hay Socios registrados en el sistema ");
         }
 
-        return results.stream()
+        List<SocioEarningsDTO> socios = results.stream()
                 .map(result -> new SocioEarningsDTO(
                         (String) result[0],
                         ((Number) result[1]).longValue(),
                         (BigDecimal) result[2]
                 ))
                 .toList();
+        return new SuccessResponseDTO<>(socios);
     }
 
-    public List<ParkingTopEarningsDTO> getTop3ParkingsByWeeklyEarnings() {
-        LocalDateTime now = LocalDateTime.now();
+    public SuccessResponseDTO<List<ParkingTopEarningsDTO>> getTop3ParkingsByWeeklyEarnings() {        LocalDateTime now = LocalDateTime.now();
         LocalDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).with(LocalTime.MIN);
         LocalDateTime endOfWeek = startOfWeek.plusDays(7);
 
@@ -133,12 +147,14 @@ public class AnalitycService {
             throw new ResourceNotFoundException("No hay datos de ingresos semanales para parqueaderos o no hay parqueaderos registrados");
         }
 
-        return results.stream()
+        List<ParkingTopEarningsDTO> topParkings = results.stream()
                 .map(result -> new ParkingTopEarningsDTO(
                         (String) result[0],
                         (BigDecimal) result[1]
                 ))
                 .toList();
+
+        return new SuccessResponseDTO<>(topParkings);
     }
 
     private VehicleDTO convertToDTO(Vehicle vehicle) {

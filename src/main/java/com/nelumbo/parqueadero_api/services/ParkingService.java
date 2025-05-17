@@ -3,6 +3,10 @@ package com.nelumbo.parqueadero_api.services;
 import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingRequestDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
+import com.nelumbo.parqueadero_api.dto.errors.ValidationDataDTO;
+import com.nelumbo.parqueadero_api.dto.errors.VehicleValidationResponseDTO;
+import com.nelumbo.parqueadero_api.dto.errors.WarningDTO;
 import com.nelumbo.parqueadero_api.exception.BusinessException;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.Parking;
@@ -23,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +42,7 @@ public class ParkingService {
     private final VehicleRepository vehicleRepository;
 
     // Crear
-    public ParkingResponseDTO createParking(ParkingRequestDTO request) {
+    public SuccessResponseDTO<ParkingResponseDTO> createParking(ParkingRequestDTO request){
         User socio = userRepository.findById(Math.toIntExact(request.socioId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Socio no encontrado"));
 
@@ -45,34 +51,33 @@ public class ParkingService {
 
         Parking parking = mapToEntity(request, socio);
         Parking savedParking = parkingRepository.save(parking);
-        return mapToDTO(savedParking);
+        return new SuccessResponseDTO<>(mapToDTO(savedParking));
     }
 
     // Obtener por ID
-    public ParkingResponseDTO getParkingById(Integer id) {
+    public SuccessResponseDTO<ParkingResponseDTO> getParkingById(Integer id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("ID de parqueadero inválido");
         }
         Parking parking = parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
-        return mapToDTO(parking);
+        return new SuccessResponseDTO<>(mapToDTO(parking));
     }
 
     // Listar todos (con filtro opcional por socio)
-    public List<ParkingResponseDTO> getAllParkings() {
-        List<Parking> parkings = parkingRepository.findAll(); // Obtenemos todos sin filtros
+    public SuccessResponseDTO<List<ParkingResponseDTO>> getAllParkings() {
+        List<Parking> parkings = parkingRepository.findAll();
 
-        if (parkings.isEmpty()) {
-            throw new ResourceNotFoundException("No hay parqueaderos registrados en el sistema");
-        }
-
-        return parkings.stream()
+        // Si no hay parkings, devolvemos lista vacía en data (no es realmente un error)
+        List<ParkingResponseDTO> responseList = parkings.stream()
                 .map(this::mapToDTO)
                 .toList();
+
+        return new SuccessResponseDTO<>(responseList);
     }
 
     // Actualizar
-    public ParkingResponseDTO updateParking(Integer id, ParkingRequestDTO request) {
+    public SuccessResponseDTO<ParkingResponseDTO> updateParking(Integer id, ParkingRequestDTO request) {
         Parking parking = parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
 
@@ -112,14 +117,18 @@ public class ParkingService {
                     .orElseThrow(() -> new IllegalArgumentException("Socio no encontrado"));
             parking.setSocio(socio);
         }
-        return mapToDTO(parkingRepository.save(parking));
+        Parking updatedParking = parkingRepository.save(parking);
+        return new SuccessResponseDTO<>(mapToDTO(updatedParking));
     }
 
     // Eliminar
-    public void deleteParking(Integer id) {
+    public SuccessResponseDTO<Void> deleteParking(Integer id) {
         Parking parking = parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
+
         parkingRepository.delete(parking);
+
+        return new SuccessResponseDTO<>(null); // Data null para operaciones de eliminación exitosas
     }
 
     // -- Métodos auxiliares --
@@ -221,28 +230,50 @@ public class ParkingService {
 
 
 
-    public List<AdminVehicleResponseDTO> getVehiclesInMyParking(Integer parkingId, UserDetails userDetails) {
+    public SuccessResponseDTO<VehicleValidationResponseDTO> getVehiclesInMyParking(
+            Integer parkingId,
+            UserDetails userDetails) {
 
         // Obtener el usuario autenticado
         User currentUser = (User) userDetails;
 
-
-        // 2. Buscar el parqueadero y verificar propiedad
+        // Buscar el parqueadero y verificar existencia
         Parking parking = parkingRepository.findById(parkingId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("Parqueadero con ID %d no encontrado", parkingId)));
 
-        // 3. Verificar que el parqueadero pertenece al socio
+        // Verificar propiedad del parqueadero
         if (!parking.getSocio().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException(
                     "El parqueadero no pertenece a tu cuenta");
         }
 
+        // Obtener vehículos en el parqueadero
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
 
-
-        return vehicles.stream()
+        List<AdminVehicleResponseDTO> responseList = vehicles.stream()
                 .map(this::convertToAdminVehicleDTO)
                 .toList();
+
+        // Opcional: agregar validaciones/warnings si es necesario
+        List<WarningDTO> warnings = new ArrayList<>();
+        if (responseList.isEmpty()) {
+            warnings.add(new WarningDTO("VEH_001", "No hay vehículos en este parqueadero"));
+        }
+
+        // Opción 1: Retorno simple con lista de vehículos
+       // return new SuccessResponseDTO<>(responseList);
+
+        // Opción 2: Si necesitas incluir validaciones
+
+        VehicleValidationResponseDTO responseData = new VehicleValidationResponseDTO(
+                responseList,
+                vehicles.isEmpty() ? "AMARILLA" : "VERDE",
+                warnings,
+                Collections.emptyList()
+        );
+
+        return new SuccessResponseDTO<>(responseData);
+
     }
 }

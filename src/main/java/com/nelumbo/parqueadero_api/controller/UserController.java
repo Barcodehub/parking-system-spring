@@ -4,6 +4,7 @@ import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
 import com.nelumbo.parqueadero_api.dto.UserRequestDTO;
 import com.nelumbo.parqueadero_api.dto.UserResponseDTO;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.services.ParkingService;
 import com.nelumbo.parqueadero_api.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +28,9 @@ public class UserController {
     private final ParkingService parkingService;
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequest) {
-        UserResponseDTO createdUser = userService.createUser(userRequest);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    public ResponseEntity<SuccessResponseDTO<UserResponseDTO>> createUser(@Valid @RequestBody UserRequestDTO userRequest) {
+        SuccessResponseDTO<UserResponseDTO> response = userService.createUser(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 

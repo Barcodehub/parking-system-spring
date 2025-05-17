@@ -2,6 +2,8 @@ package com.nelumbo.parqueadero_api.services;
 
 import com.nelumbo.parqueadero_api.dto.UserRequestDTO;
 import com.nelumbo.parqueadero_api.dto.UserResponseDTO;
+import com.nelumbo.parqueadero_api.dto.VehicleExitResultDTO;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.exception.EmailAlreadyExistsException;
 import com.nelumbo.parqueadero_api.models.Role;
 import com.nelumbo.parqueadero_api.models.User;
@@ -24,11 +26,12 @@ public class UserService {
 
 
     @Transactional
-    public UserResponseDTO createUser(@Valid UserRequestDTO userRequest) {
+    public SuccessResponseDTO<UserResponseDTO> createUser(@Valid UserRequestDTO userRequest) {
         // Verificar si el email ya existe
         String email = userRequest.email().trim().toLowerCase();
+        // Verificar email existente
         if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException("El email " + email + " ya está registrado");
+            throw new EmailAlreadyExistsException("USER_001", "El email ya está registrado", "email");
         }
 
         // Crear nuevo usuario
@@ -41,7 +44,12 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        return mapToUserResponseDTO(savedUser);
+        UserResponseDTO response = mapToUserResponseDTO(savedUser);
+
+        // Devolver el wrapper completo
+        return new SuccessResponseDTO<>(response);
+
+
     }
 
     // Otros métodos del servicio...

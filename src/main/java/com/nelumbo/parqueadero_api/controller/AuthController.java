@@ -2,8 +2,8 @@ package com.nelumbo.parqueadero_api.controller;
 
 import com.nelumbo.parqueadero_api.dto.AuthRequestDTO;
 import com.nelumbo.parqueadero_api.dto.AuthResponseDTO;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.services.AuthService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody AuthRequestDTO request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+    public ResponseEntity<SuccessResponseDTO<AuthResponseDTO>> login(
+            @Valid @RequestBody AuthRequestDTO request) {
+        return authService.authenticate(request);
     }
 }

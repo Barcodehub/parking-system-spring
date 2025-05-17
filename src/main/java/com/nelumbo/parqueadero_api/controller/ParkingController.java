@@ -3,20 +3,21 @@ package com.nelumbo.parqueadero_api.controller;
 import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingRequestDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
+import com.nelumbo.parqueadero_api.dto.errors.VehicleValidationResponseDTO;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.services.ParkingService;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/parkings")
@@ -30,31 +31,36 @@ public class ParkingController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public ParkingResponseDTO createParking(@RequestBody @Valid ParkingRequestDTO request) {
-        return parkingService.createParking(request);
+    public ResponseEntity<SuccessResponseDTO<ParkingResponseDTO>> createParking(
+            @RequestBody @Valid ParkingRequestDTO request) {
+        SuccessResponseDTO<ParkingResponseDTO> response = parkingService.createParking(request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ParkingResponseDTO getParkingById(@PathVariable Integer id) {
-        return parkingService.getParkingById(id);
+    public SuccessResponseDTO<ParkingResponseDTO> getParkingById(@PathVariable Integer id) {
+        SuccessResponseDTO<ParkingResponseDTO> response = parkingService.getParkingById(id);
+        return response;
     }
 
     @GetMapping
-    public List<ParkingResponseDTO> getAllParkings() {
-        return parkingService.getAllParkings();
+    public ResponseEntity<SuccessResponseDTO<List<ParkingResponseDTO>>> getAllParkings() {
+        SuccessResponseDTO<List<ParkingResponseDTO>> response = parkingService.getAllParkings();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    public ParkingResponseDTO updateParking(
+    public ResponseEntity<SuccessResponseDTO<ParkingResponseDTO>> updateParking(
             @PathVariable Integer id,
             @RequestBody @Valid ParkingRequestDTO request) {
-        return parkingService.updateParking(id, request);
+        SuccessResponseDTO<ParkingResponseDTO> response = parkingService.updateParking(id, request);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteParking(@PathVariable Integer id) {
-        parkingService.deleteParking(Math.toIntExact(id));
+    public ResponseEntity<SuccessResponseDTO<Void>> deleteParking(@PathVariable Integer id) {
+        SuccessResponseDTO<Void> response = parkingService.deleteParking(id);
+        return ResponseEntity.ok(response);
     }
 
 
@@ -63,10 +69,14 @@ public class ParkingController {
 //que le pertenezca al socio autenticado
 
     @GetMapping("/socio/my-parkings/{parkingId}/vehicles")
-    public List<AdminVehicleResponseDTO> getVehiclesInMyParking(
+    public ResponseEntity<SuccessResponseDTO<VehicleValidationResponseDTO>> getVehiclesInMyParking(
             @PathVariable Integer parkingId,
             @AuthenticationPrincipal UserDetails userDetails) {
-        return parkingService.getVehiclesInMyParking(parkingId, userDetails);
+
+        SuccessResponseDTO<VehicleValidationResponseDTO> response =
+                parkingService.getVehiclesInMyParking(parkingId, userDetails);
+
+        return ResponseEntity.ok(response);
     }
 
 

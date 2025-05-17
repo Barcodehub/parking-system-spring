@@ -1,7 +1,10 @@
 package com.nelumbo.parqueadero_api.controller;
 
 import com.nelumbo.parqueadero_api.dto.VehicleEntryRequestDTO;
+import com.nelumbo.parqueadero_api.dto.VehicleEntryResponseDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitRequestDTO;
+import com.nelumbo.parqueadero_api.dto.VehicleExitResultDTO;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.services.VehicleService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -27,16 +30,16 @@ public class VehicleController {
             @RequestBody @Valid VehicleEntryRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        Map<String, Integer> response = vehicleService.registerVehicleEntry(request, userDetails.getUsername());
+        SuccessResponseDTO<VehicleEntryResponseDTO> response = vehicleService.registerVehicleEntry(request, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 
 
     @PostMapping("/exit")
-    public ResponseEntity<?> registerVehicleExit(@RequestBody @Valid VehicleEntryRequestDTO request) {
-        Map<String, String> response = vehicleService.registerVehicleExit(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<SuccessResponseDTO<VehicleExitResultDTO>> registerVehicleExit(
+            @RequestBody @Valid VehicleExitRequestDTO request) {
+        return ResponseEntity.ok(vehicleService.registerVehicleExit(request));
     }
 
 
