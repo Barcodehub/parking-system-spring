@@ -31,7 +31,7 @@ public class UserService {
         String email = userRequest.email().trim().toLowerCase();
         // Verificar email existente
         if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException("USER_001", "El email ya está registrado", "email");
+            throw new EmailAlreadyExistsException("El email ya está registrado", "email");
         }
 
         // Crear nuevo usuario

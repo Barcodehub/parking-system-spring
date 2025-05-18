@@ -10,7 +10,7 @@ import com.nelumbo.parqueadero_api.validation.validators.VehiculoNoRegistradoVal
 @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface VehiculoNoRegistradoActualmente {
-    String message() default "Ya existe un vehículo con esta placa registrado actualmente";
+    String message() default "No se puede Registrar Ingreso, ya existe la placa en este u otro parqueadero";
 
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

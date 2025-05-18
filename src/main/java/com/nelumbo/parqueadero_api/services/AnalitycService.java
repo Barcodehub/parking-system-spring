@@ -8,11 +8,9 @@ import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.validation.annotations.ParkingExist;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -28,7 +26,6 @@ public class AnalitycService {
 
     private final VehicleHistoryRepository vehicleHistoryRepository;
     private final VehicleRepository vehicleRepository;
-    private final ParkingRepository parkingRepository;
 
     public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehicles() {
         List<Object[]> results = vehicleHistoryRepository.findTop10MostFrequentVehicles();

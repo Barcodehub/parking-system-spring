@@ -11,9 +11,11 @@ public record ParkingRequestDTO(
         @NotBlank(message = "Name is required")
         String nombre,
 
+        @NotNull(message = "Capacidad Requerido")
         @Positive
         Integer capacidad,
 
+        @NotNull(message = "Costo por hora Requerido")
         @Positive
         BigDecimal costoPorHora,
 

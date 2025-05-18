@@ -4,12 +4,8 @@ import com.nelumbo.parqueadero_api.dto.VehicleEntryRequestDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleEntryResponseDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitRequestDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitResultDTO;
-import com.nelumbo.parqueadero_api.dto.errors.RejectionDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
-import com.nelumbo.parqueadero_api.dto.errors.WarningDTO;
-import com.nelumbo.parqueadero_api.exception.BusinessException;
 import com.nelumbo.parqueadero_api.exception.BusinessRuleException;
-import com.nelumbo.parqueadero_api.exception.DuplicateVehicleException;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.*;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
@@ -17,7 +13,6 @@ import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.validation.annotations.ParqueaderoTieneEspacio;
-import com.nelumbo.parqueadero_api.validation.annotations.VehiculoNoRegistradoActualmente;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +21,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestTemplate;
-
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-
+import org.springframework.security.core.context.SecurityContextHolder;
 @Service
 @RequiredArgsConstructor
 @Validated
@@ -52,8 +46,7 @@ public class VehicleService {
         String placaNormalizada = request.placa().toUpperCase().trim();
 
 
-        User socio = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        User socio = getCurrentAuthenticatedUser();
 
         Parking parqueadero = parkingRepository.findById(request.parqueaderoId()).get();
 
@@ -73,13 +66,20 @@ public class VehicleService {
         // 7. Respuesta exitosa
         return new SuccessResponseDTO<>(
                 new VehicleEntryResponseDTO(
-                        "VERDE",
-                        List.of(), // warnings si hubiera
-                        List.of(), // rejections si hubiera
                         savedVehicle.getId()
                 )
         );
     }
+
+    private User getCurrentAuthenticatedUser() {
+        return userRepository.findByEmail(getCurrentUserEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+    }
+
+    private String getCurrentUserEmail() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
 
 
     @Transactional
@@ -88,7 +88,7 @@ public class VehicleService {
 
         // 3. Vehiculo ya salió
         Vehicle vehicle = vehicleRepository.findByPlacaAndFechaSalidaIsNull(placaNormalizada)
-                .orElseThrow(() -> new BusinessRuleException("VEH_002", "Vehículo no encontrado en el parqueadero"));
+                .orElseThrow(() -> new BusinessRuleException("No se puede Registrar Salida, no existe la placa en el parqueadero"));
 
 
         // 3. Calcular costo

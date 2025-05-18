@@ -3,19 +3,16 @@ package com.nelumbo.parqueadero_api.exception;
 
 import com.nelumbo.parqueadero_api.dto.errors.ErrorDetailDTO;
 import com.nelumbo.parqueadero_api.dto.errors.ErrorResponseDTO;
-import com.nelumbo.parqueadero_api.dto.errors.RejectionDTO;
-import com.nelumbo.parqueadero_api.dto.errors.ValidationDataDTO;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,21 +20,6 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
-//        List<ErrorDetailDTO> errors = ex.getBindingResult().getFieldErrors().stream()
-//                .map(error -> new ErrorDetailDTO(
-//                        "400",
-//                        error.getDefaultMessage(),
-//                        error.getField(),
-//                        null // traceId
-//                ))
-//                .collect(Collectors.toList());
-//
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                .body(new ErrorResponseDTO(null, errors));
-//    }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> handleJsonParseError(HttpMessageNotReadableException ex) {
@@ -50,7 +32,6 @@ public class GlobalExceptionHandler {
         ErrorDetailDTO errorDetail = new ErrorDetailDTO(
                 "404",
                 ex.getMessage(),
-                null,
                 null
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -62,7 +43,6 @@ public class GlobalExceptionHandler {
         ErrorDetailDTO errorDetail = new ErrorDetailDTO(
                 "400",
                 ex.getMessage(),
-                null,
                 null
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -71,7 +51,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ErrorResponseDTO> handleBusinessRule(BusinessRuleException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getCode(), ex.getMessage(), null);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "400", ex.getMessage(), null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -80,8 +60,7 @@ public class GlobalExceptionHandler {
                 .map(fieldError -> new ErrorDetailDTO(
                         "400",
                         fieldError.getDefaultMessage(),
-                        fieldError.getField(),
-                        null // traceId
+                        fieldError.getField()
                 ))
                 .toList();
 
@@ -94,7 +73,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status)
                 .body(new ErrorResponseDTO(
                         null,
-                        List.of(new ErrorDetailDTO(code, message, field, null))
+                        List.of(new ErrorDetailDTO(code, message, field))
                 ));
     }
 
@@ -104,8 +83,7 @@ public class GlobalExceptionHandler {
                 .map(v -> new ErrorDetailDTO(
                         "400",  // Bad Request
                         v.getMessage(),
-                        v.getPropertyPath().toString().split("\\.")[1],
-                        null))
+                        v.getPropertyPath().toString().split("\\.")[1]))
                 .collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -115,17 +93,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorResponseDTO> handleEmailExists(EmailAlreadyExistsException ex) {
         ErrorDetailDTO error = new ErrorDetailDTO(
-                ex.getErrorCode(), // "USER_001"
+                "400", // "USER_001"
                 ex.getMessage(),
-                ex.getFieldName(), // "email"
-                null // traceId
+                ex.getFieldName() // "email"
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponseDTO(null, List.of(error)));
     }
 
+    @ExceptionHandler(FieldAwareResponseStatusException.class)
+    public ResponseEntity<ErrorResponseDTO> handleFieldAwareException(FieldAwareResponseStatusException ex) {
+        ErrorDetailDTO errorDetail = new ErrorDetailDTO(
+                String.valueOf(ex.getStatusCode().value()),
+                ex.getReason(),
+                ex.getField()
+        );
 
+        return new ResponseEntity<>(
+                new ErrorResponseDTO(null, List.of(errorDetail)),
+                ex.getStatusCode()
+        );
+    }
 
     @ExceptionHandler(DuplicateVehicleException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateVehicle(DuplicateVehicleException ex) {
@@ -135,10 +124,21 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("mensaje", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorResponseDTO> handleBusinessException(BusinessException ex) {
+        String errorCode = ex.getMessage().contains("rol SOCIO") ? "403" : "400";
+
+        ErrorDetailDTO errorDetail = new ErrorDetailDTO(
+                errorCode,
+                ex.getMessage(),
+                ex.getField()
+        );
+
+        ErrorResponseDTO response = new ErrorResponseDTO(
+                null,
+                List.of(errorDetail)
+        );
+        HttpStatus httpStatus = errorCode.equals("403") ? HttpStatus.FORBIDDEN : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(response, httpStatus);
     }
 
     @ExceptionHandler(AuthenticationFailedException.class)
@@ -146,8 +146,7 @@ public class GlobalExceptionHandler {
         ErrorDetailDTO errorDetail = new ErrorDetailDTO(
                 "401",
                 ex.getMessage(),
-                null,  // field si aplica
-                null   // traceId si lo generas
+                ex.getField()
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -160,7 +159,6 @@ public class GlobalExceptionHandler {
         ErrorDetailDTO errorDetail = new ErrorDetailDTO(
                 "500",
                 "Internal server error",
-                null,
                 null
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -181,7 +179,6 @@ public class GlobalExceptionHandler {
         ErrorDetailDTO errorDetail = new ErrorDetailDTO(
                 "403",
                 ex.getMessage(),
-                null,
                 null
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN)

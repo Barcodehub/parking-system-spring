@@ -4,9 +4,7 @@ package com.nelumbo.parqueadero_api.services;
 import com.nelumbo.parqueadero_api.dto.AuthRequestDTO;
 import com.nelumbo.parqueadero_api.dto.AuthResponseDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
-import com.nelumbo.parqueadero_api.dto.errors.ValidationDataDTO;
 import com.nelumbo.parqueadero_api.exception.AuthenticationFailedException;
-import com.nelumbo.parqueadero_api.exception.HandleInternalServerError;
 import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.security.JwtService;
@@ -18,10 +16,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.List;
 
 
 @Service
@@ -37,7 +32,7 @@ public class AuthService {
         try {
             // Primero obtenemos el usuario
             User user = userRepository.findByEmail(request.email())
-                    .orElseThrow(() -> new AuthenticationFailedException("Usuario NO encontrado para ese E-mail"));
+                    .orElseThrow(() -> new AuthenticationFailedException("Usuario NO encontrado para ese E-mail", "email"));
 
             // Autenticación con Spring Security
             Authentication authentication = authenticationManager.authenticate(
@@ -57,18 +52,15 @@ public class AuthService {
                     user.getRole()
             );
 
-            // Si necesitas incluir validaciones (warnings/rejections) incluso en éxito
-            ValidationDataDTO validationData = new ValidationDataDTO(
-                    "VERDE", // o el flag correspondiente
-                    List.of(), // warnings si hubiera
-                    List.of()  // rejections si hubiera
-            );
+
 
             return ResponseEntity.ok(new SuccessResponseDTO<>(authResponse));
 
 
-        } catch (AuthenticationFailedException | BadCredentialsException e) {
-            throw new AuthenticationFailedException(e.getMessage());
+        } catch (BadCredentialsException e) {
+            throw new AuthenticationFailedException("Credenciales inválidas", "password");
+        } catch (AuthenticationFailedException e) {
+            throw e;
         }
     }
 }

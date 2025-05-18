@@ -16,49 +16,27 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"const response = pm.response.json();\r",
-									"if (response.token) {  // Ajusta esto según el JSON devuelto por tu API\r",
-									"    pm.environment.set(\"authToken\", response.token);\r",
-									"    console.log(\"Token guardado en variables de entorno\");\r",
-									"} else {\r",
-									"    console.error(\"No se encontró un token en la respuesta\");\r",
+									"if (pm.response.code === 200) {\r",
+									"    const response = pm.response.json();\r",
+									"    const token = response.data?.token;\r",
+									"\r",
+									"    if (token) {\r",
+									"        pm.environment.set(\"authToken\", token);\r",
+									"        console.log(\"Token guardado:\", token);\r",
+									"    } else {\r",
+									"        console.warn(\"No se encontró el token en la respuesta.\");\r",
+									"    }\r",
 									"}\r",
-									"\r",
-									"pm.test(\"Response status code is 200\", function () {\r",
-									"    pm.expect(pm.response.code).to.equal(200);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Response time is less than 500ms\", function () {\r",
-									"  pm.expect(pm.response.responseTime).to.be.below(500);\r",
-									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Response has the required fields - token, email, and role\", function () {\r",
-									"  const responseData = pm.response.json();\r",
-									"  \r",
-									"  pm.expect(responseData).to.be.an('object');\r",
-									"  pm.expect(responseData.token).to.exist;\r",
-									"  pm.expect(responseData.email).to.exist;\r",
-									"  pm.expect(responseData.role).to.exist;\r",
-									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Email is in a valid format\", function () {\r",
-									"    const responseData = pm.response.json();\r",
-									"    \r",
-									"    pm.expect(responseData).to.be.an('object');\r",
-									"    pm.expect(responseData.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/, \"Email format is not valid\");\r",
-									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Role is a non-empty string\", function () {\r",
-									"  const responseData = pm.response.json();\r",
-									"  \r",
-									"  pm.expect(responseData).to.be.an('object');\r",
-									"  pm.expect(responseData.role).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Role should not be empty\");\r",
-									"});\r",
-									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
 									""
 								],
 								"type": "text/javascript",
@@ -125,7 +103,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Juan Pérez\",\r\n    \"email\": \"juan2@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"raw": "{\r\n    \"name\": \"Juan Pérez\",\r\n    \"email\": \"juan222@example.com\",\r\n    \"password\": \"Password1!\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -374,7 +352,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"placa\": \"afc767\",\r\n    \"parqueaderoId\": 1\r\n}",
+							"raw": "{\r\n    \"placa\": \"DDD999\",\r\n    \"parqueaderoId\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -419,7 +397,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"placa\": \"ade999\",\r\n    \"parqueaderoId\": 1\r\n}",
+							"raw": "{\r\n    \"placa\": \"DDD999\",\r\n    \"parqueaderoId\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -678,43 +656,6 @@
 			]
 		},
 		{
-			"name": "Parkings associated",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{authToken}}",
-						"type": "text"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8080/api/users/socio/parkings",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"users",
-						"socio",
-						"parkings"
-					]
-				},
-				"description": "This endpoint retrieves a list of parking details associated with a specific socio.\n\n### Request\n\n- Method: GET\n    \n- URL: `http://localhost:8080/api/users/socio/parkings`\n    \n\n### Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n- \\[ { \"id\": 0, \"nombre\": \"\", \"capacidad\": 0, \"costoPorHora\": 0, \"socioId\": 0, \"createdAt\": \"\" }\\]"
-			},
-			"response": []
-		},
-		{
 			"name": "vehicles of Parking especifico",
 			"request": {
 				"auth": {
@@ -734,7 +675,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/api/users/parkings/1/vehicles",
+					"raw": "http://localhost:8080/api/parkings/parkings/1/vehicles",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -742,52 +683,13 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"users",
+						"parkings",
 						"parkings",
 						"1",
 						"vehicles"
 					]
 				},
 				"description": "### Get User Parked Vehicles\n\nThis endpoint retrieves the list of vehicles parked at the specific parking.\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n\n##### Response Body\n\nThe response returns an array of objects, each representing a vehicle parked at the specified parking. Each object contains the following attributes:\n\n- `id` (number): The unique identifier for the vehicle.\n    \n- `placa` (string): The license plate of the vehicle.\n    \n- `fechaIngreso` (string): The date and time of the vehicle's entry into the parking.\n    \n- `fechaSalida` (string): The date and time of the vehicle's exit from the parking (null if the vehicle is still parked).\n    \n- `parqueaderoNombre` (string): The name of the parking.\n    \n- `socioNombre` (string): The name of the user associated with the vehicle."
-			},
-			"response": []
-		},
-		{
-			"name": "vehicles of my parking assocated",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{authToken}}",
-						"type": "text"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:8080/api/parkings/socio/my-parkings/1/vehicles",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"parkings",
-						"socio",
-						"my-parkings",
-						"1",
-						"vehicles"
-					]
-				},
-				"description": "# Get Socio's Vehicles\n\nThis endpoint retrieves the vehicles from the specific parking associated with a socio.\n\n## Request\n\n### Endpoint\n\n`GET http://localhost:8080/api/`parkings/socio/my-parkings/Parking-ID/vehicles\n\n## Response\n\n- Status: 200\n    \n- Content-Type: application/json\n    \n\n``` json\n[\n    {\n        \"id\": 0,\n        \"placa\": \"\",\n        \"fechaIngreso\": \"\",\n        \"fechaSalida\": null,\n        \"parqueaderoNombre\": \"\",\n        \"socioNombre\": \"\"\n    }\n]\n\n ```\n\nThe response body contains an array of vehicles associated with the specified socio, including details such as the vehicle ID, license plate, entry date, exit date (if applicable), parking name, and socio name."
 			},
 			"response": []
 		},
@@ -804,7 +706,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"subject\": \"Novedades en el sistema\",\r\n    \"message\": \"Estimado socio,\\n\\nLe informamos sobre las últimas actualizaciones en nuestra plataforma.\\n\\nSaludos cordiales,\\nEl equipo administrativo\",\r\n    \"socioId\": 5\r\n}",
+					"raw": "//simular enviar un correo a un socio\r\n{\r\n    \"subject\": \"Novedades en el sistema\",\r\n    \"message\": \"Estimado socio,\\n\\nLe informamos sobre las últimas actualizaciones en nuestra plataforma.\\n\\nSaludos cordiales,\\nEl equipo administrativo\",\r\n    \"socioId\": 5  //null -> envia a todos\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -846,7 +748,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n \"email\": \"juan@example.com\",\r\n \"placa\": \"dc123\",\r\n \"message\": \"hola\",\r\n \"parqueaderoId\": 1\r\n}\r\n",
+					"raw": "//Simula envio de correo directamente pero ya se hace automatico al entrar un vehiculo a un parqueadero\r\n//Debe estar el microservicio corriendo y probar el endpoint de entry Vehicule\r\n//Se revisa en los logs\r\n{\r\n \"email\": \"juan@example.com\",\r\n \"placa\": \"dc123\",\r\n \"message\": \"hola\",\r\n \"parqueaderoId\": 1\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"

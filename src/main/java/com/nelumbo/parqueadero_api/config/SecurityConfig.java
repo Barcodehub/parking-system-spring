@@ -1,5 +1,8 @@
 package com.nelumbo.parqueadero_api.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nelumbo.parqueadero_api.dto.errors.ErrorDetailDTO;
+import com.nelumbo.parqueadero_api.dto.errors.ErrorResponseDTO;
 import com.nelumbo.parqueadero_api.exception.CustomAccessDeniedException;
 import com.nelumbo.parqueadero_api.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.List;
 
 
 @Configuration
@@ -76,33 +81,46 @@ public class SecurityConfig {
 
 
     }
+
+
     @Bean
     public AccessDeniedHandler customAccessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
             response.setContentType("application/json");
             response.setStatus(HttpStatus.FORBIDDEN.value());
 
-            String message = "No tienes permisos para realizar esta acción";
+            ErrorDetailDTO errorDetail = new ErrorDetailDTO(
+                    "403",
+                    "No tienes permisos para realizar esta acción",
+                    null
+            );
 
+            ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                    null,
+                    List.of(errorDetail)
+            );
 
-            response.getWriter().write(String.format(
-                    "{\"status\": %d, \"error\": \"Forbidden\", \"message\": \"%s\"}",
-                    HttpStatus.FORBIDDEN.value(),
-                    message
-            ));
+            response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
         };
     }
-
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authException) -> {
             response.setContentType("application/json");
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.getWriter().write(String.format(
-                    "{\"status\": %d, \"error\": \"Unauthorized\", \"message\": \"%s\"}",
-                    HttpStatus.UNAUTHORIZED.value(),
-                    authException.getMessage()
-            ));
+
+            ErrorDetailDTO errorDetail = new ErrorDetailDTO(
+                    "401",
+                    "Autenticación requerida",
+                    null
+            );
+
+            ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                    null,
+                    List.of(errorDetail)
+            );
+
+            response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
         };
     }
 

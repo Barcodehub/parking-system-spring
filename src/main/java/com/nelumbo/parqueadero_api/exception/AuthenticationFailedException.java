@@ -5,7 +5,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
 public class AuthenticationFailedException extends RuntimeException {
-    public AuthenticationFailedException(String message) {
+    private String field;
+
+    public AuthenticationFailedException(String message, String field) {
         super(message);
+        this.field = field;
+    }
+
+    public String getField() {
+        return field;
     }
 }

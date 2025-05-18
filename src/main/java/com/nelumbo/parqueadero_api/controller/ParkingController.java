@@ -4,10 +4,10 @@ import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingRequestDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
-import com.nelumbo.parqueadero_api.dto.errors.VehicleValidationResponseDTO;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.services.ParkingService;
+import com.nelumbo.parqueadero_api.validation.annotations.ParkingExist;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -66,12 +66,12 @@ public class ParkingController {
     }
 
 
-    @GetMapping("parkings/{parkingId}/vehicles")
-    public ResponseEntity<SuccessResponseDTO<VehicleValidationResponseDTO>> getVehiclesInParking(
-            @PathVariable Integer parkingId,
-            @AuthenticationPrincipal UserDetails userDetails) {  // userDetails será null si no está autenticado (o usar @RequestParam)
+    @GetMapping("/parkings/{parkingId}/vehicles")
+    public ResponseEntity<SuccessResponseDTO<List<AdminVehicleResponseDTO>>> getVehiclesInParking(
+            @ParkingExist @PathVariable Integer parkingId,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        SuccessResponseDTO<VehicleValidationResponseDTO> response =
+        SuccessResponseDTO<List<AdminVehicleResponseDTO>> response =
                 parkingService.getVehiclesInParking(parkingId, userDetails);
 
         return ResponseEntity.ok(response);

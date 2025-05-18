@@ -4,9 +4,6 @@ import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingRequestDTO;
 import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
-import com.nelumbo.parqueadero_api.dto.errors.ValidationDataDTO;
-import com.nelumbo.parqueadero_api.dto.errors.VehicleValidationResponseDTO;
-import com.nelumbo.parqueadero_api.dto.errors.WarningDTO;
 import com.nelumbo.parqueadero_api.exception.BusinessException;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.Parking;
@@ -19,22 +16,13 @@ import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.validation.annotations.ParkingExist;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -111,8 +99,7 @@ public class ParkingService {
         // Validación de nombre único
         validateUniqueParkingName(
                 request.nombre(),
-                request.socioId(),
-                id
+                request.socioId()
         );
 
         // Actualización de campos
@@ -139,21 +126,16 @@ public class ParkingService {
     // -- Métodos auxiliares --
     private void validateSocioRole(User user) {
         if (user.getRole() != Role.SOCIO) {
-            throw new BusinessException("El usuario debe tener rol SOCIO");
+            throw new BusinessException("El usuario debe tener rol SOCIO", "socioId");
         }
     }
 
     private void validateUniqueParkingName(String nombre, Integer socioId) {
         if (parkingRepository.existsByNombreAndSocioId(nombre, socioId)) {
-            throw new BusinessException("Ya tienes un parqueadero con ese nombre");
+            throw new BusinessException("Ya tienes un parqueadero con ese nombre", "nombre");
         }
     }
 
-    private void validateUniqueParkingName(String nombre, Integer socioId, Integer parkingId) {
-        if (parkingRepository.existsByNombreAndSocioIdAndIdNot(nombre, socioId, parkingId)) {
-            throw new BusinessException("Ya tienes un parqueadero con ese nombre");
-        }
-    }
 
     private Parking mapToEntity(ParkingRequestDTO dto, User socio) {
         return Parking.builder()
@@ -179,7 +161,7 @@ public class ParkingService {
 
 
 
-    public SuccessResponseDTO<VehicleValidationResponseDTO> getVehiclesInParking(
+    public SuccessResponseDTO<List<AdminVehicleResponseDTO>> getVehiclesInParking(
             @ParkingExist @PathVariable Integer parkingId,
             @AuthenticationPrincipal UserDetails userDetails) {  // userDetails puede ser null (para admin)
 
@@ -189,26 +171,20 @@ public class ParkingService {
         // 2. Validar permisos
         validateParkingAccess(parking, userDetails);
 
-        // 3. Obtener vehículos (lógica común)
+        // 3. Obtener vehículos
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
+
+        if (vehicles.isEmpty()) {
+            throw new ResourceNotFoundException("No hay vehículos estacionados");
+        }
+
+        // 4. Convertir a DTOs
         List<AdminVehicleResponseDTO> vehicleDTOs = vehicles.stream()
                 .map(this::convertToAdminVehicleDTO)
                 .toList();
 
-        // 4. Construir respuesta (adaptable para ambos casos)
-        List<WarningDTO> warnings = new ArrayList<>();
-        if (vehicles.isEmpty()) {
-            warnings.add(new WarningDTO("VEH_001", "No hay vehículos estacionados"));
-        }
-
-        VehicleValidationResponseDTO responseData = new VehicleValidationResponseDTO(
-                vehicleDTOs,
-                vehicles.isEmpty() ? "AMARILLA" : "VERDE",
-                warnings,
-                Collections.emptyList()
-        );
-
-        return new SuccessResponseDTO<>(responseData);
+        // 5. Retornar respuesta
+        return new SuccessResponseDTO<>(vehicleDTOs);
     }
 
 
