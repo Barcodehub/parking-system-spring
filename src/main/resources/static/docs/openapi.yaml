@@ -283,15 +283,8 @@ paths:
       tags:
         - parking-controller
       summary: Listado - Parqueaderos
-      description: El Admin puede ver la lista de parqueaderos / El id es para cargar los de un Socio especifico
+      description: El Admin puede ver la lista de parqueaderos
       operationId: getAllParkings
-      parameters:
-        - name: socioId
-          in: query
-          required: false
-          schema:
-            type: integer
-            format: int32
       responses:
         '200':
           description: OK
