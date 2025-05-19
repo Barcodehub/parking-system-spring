@@ -75,7 +75,7 @@ public class ParkingService {
                 .map(this::mapToDTO)
                 .toList();
         if (responseList.isEmpty()) {
-            throw new ResourceNotFoundException("El socio no tiene parqueaderod asociados");
+            throw new ResourceNotFoundException("No se encontraron parqueaderos");
         }
 
         return new SuccessResponseDTO<>(responseList);
