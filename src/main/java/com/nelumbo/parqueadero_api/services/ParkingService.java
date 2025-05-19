@@ -72,6 +72,9 @@ public class ParkingService {
         List<ParkingResponseDTO> responseList = parkings.stream()
                 .map(this::mapToDTO)
                 .toList();
+        if (responseList.isEmpty()) {
+            throw new ResourceNotFoundException("El socio no tiene parqueaderod asociados");
+        }
 
         return new SuccessResponseDTO<>(responseList);
     }

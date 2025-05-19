@@ -283,7 +283,7 @@ paths:
       tags:
         - parking-controller
       summary: Listado - Parqueaderos
-      description: El Admin puede ver la lista de parqueaderos
+      description: El Admin puede ver la lista de parqueaderos / El socio ve sus parqueaderos Asociados
       operationId: getAllParkings
       responses:
         '200':
