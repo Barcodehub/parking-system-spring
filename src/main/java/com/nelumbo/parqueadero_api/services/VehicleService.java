@@ -115,7 +115,7 @@ public class VehicleService {
 
     private BigDecimal calculateParkingFee(LocalDateTime entryTime, LocalDateTime exitTime, BigDecimal hourlyRate) {
         long minutes = Duration.between(entryTime, exitTime).toMinutes();
-        long hours = (long) Math.ceil(minutes / 60.0); // Redondeo hacia arriba
+        long hours = Math.max(1, (long) Math.ceil(minutes / 60.0)); // Cobro mínimo: 1 hora // Redondeo hacia arriba
         return hourlyRate.multiply(BigDecimal.valueOf(hours));
     }
 
