@@ -39,7 +39,7 @@ public class ParkingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Socio no encontrado"));
 
         validateSocioRole(socio);
-        validateUniqueParkingName(request.nombre(), request.socioId());
+        //validateUniqueParkingName(request.nombre(), request.socioId());
 
         Parking parking = mapToEntity(request, socio);
         Parking savedParking = parkingRepository.save(parking);
@@ -95,12 +95,6 @@ public class ParkingService {
     public SuccessResponseDTO<ParkingResponseDTO> updateParking(@ParkingExist @PathVariable Integer id, @Valid ParkingRequestDTO request) {
 
         Parking parking = parkingRepository.getReferenceById(id);
-
-        // Validación de nombre único
-        validateUniqueParkingName(
-                request.nombre(),
-                request.socioId()
-        );
 
         // Actualización de campos
         parking.setNombre(request.nombre());

@@ -403,6 +403,7 @@ paths:
       tags:
         - Email
       operationId: sendEmailToSocios
+      description: Simular enviar un correo a un socio / socioID=null -> envia a todos
       requestBody:
         content:
           application/json:
@@ -436,91 +437,12 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
         '503':
           $ref: '#/components/responses/serviceUnavailableResponse'
-  /api/users/socio/parkings:
-    get:
-      tags:
-        - user-controller
-      summary: Parqueaderos del Socio
-      description: El socio puede ver listado de los parqueaderos que tiene asociados
-      operationId: getParkingsBySocio
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ParkingResponseDTO'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '401':
-          $ref: '#/components/responses/unauthorizedResponse'
-        '403':
-          $ref: '#/components/responses/forbiddenResponse'
-        '404':
-          $ref: '#/components/responses/notFoundResponse'
-        '406':
-          $ref: '#/components/responses/notAcceptableResponse'
-        '413':
-          $ref: '#/components/responses/payloadTooLargeResponse'
-        '415':
-          $ref: '#/components/responses/unsupportedMediaTypeResponse'
-        '429':
-          $ref: '#/components/responses/tooManyRequestsResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
-        '503':
-          $ref: '#/components/responses/serviceUnavailableResponse'
-  /api/users/parkings/{parkingId}/vehicles:
-    get:
-      tags:
-        - user-controller
-      summary: Vehiculos de un parqueadero especifico
-      description: El Admin Puede revisar listado/detalle de vehículos en un parqueadero en especifico
-      operationId: getVehiclesInParking
-      parameters:
-        - name: parkingId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AdminVehicleResponseDTO'
-        '400':
-          $ref: '#/components/responses/badRequestResponse'
-        '401':
-          $ref: '#/components/responses/unauthorizedResponse'
-        '403':
-          $ref: '#/components/responses/forbiddenResponse'
-        '404':
-          $ref: '#/components/responses/notFoundResponse'
-        '406':
-          $ref: '#/components/responses/notAcceptableResponse'
-        '413':
-          $ref: '#/components/responses/payloadTooLargeResponse'
-        '415':
-          $ref: '#/components/responses/unsupportedMediaTypeResponse'
-        '429':
-          $ref: '#/components/responses/tooManyRequestsResponse'
-        '500':
-          $ref: '#/components/responses/internalServerErrorResponse'
-        '503':
-          $ref: '#/components/responses/serviceUnavailableResponse'
-  /api/parkings/socio/my-parkings/{parkingId}/vehicles:
+  /api/parkings/parkings/{parkingId}/vehicles:
     get:
       tags:
         - parking-controller
       summary: Vehiculos de un Parqueadero de mi propiedad
-      description: El Socio Puede ver listado/detalle de todos los vehículos en un parqueadero especifico que le pertenezca
+      description: El Socio Puede ver listado/detalle de todos los vehículos en un parqueadero especifico que le pertenezca o El Admin Puede revisar listado/detalle de vehículos en un parqueadero en especifico
       operationId: getVehiclesInMyParking
       parameters:
         - name: parkingId
@@ -893,7 +815,11 @@ components:
           type: string
           maxLength: 6
           minLength: 6
+        parqueaderoId:
+          type: integer
+          format: int64
       required:
+        - parqueaderoId
         - placa
     VehicleEntryRequestDTO:
       type: object
