@@ -2,6 +2,9 @@ package com.nelumbo.parqueadero_api.controller;
 
 import com.nelumbo.parqueadero_api.dto.EmailRequest;
 import com.nelumbo.parqueadero_api.dto.EmailResponse;
+import com.nelumbo.parqueadero_api.dto.errors.ErrorDetailDTO;
+import com.nelumbo.parqueadero_api.dto.errors.ErrorResponseDTO;
+import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -17,14 +22,13 @@ import java.util.Map;
 public class EmailController {
 
     @PostMapping("/send-email")
-    public ResponseEntity<EmailResponse> sendEmail(@Valid @RequestBody EmailRequest request) {
+    public ResponseEntity<SuccessResponseDTO<EmailResponse>> sendEmail(@Valid @RequestBody EmailRequest request) {
         // Simulación de envío de correo
         System.out.println("Simulando envío de email a: " + request.getEmail());
         System.out.println("Detalles: " + request.getMessage());
 
-        EmailResponse response = new EmailResponse(
-                "Correo Enviado"
-        );
+        EmailResponse emailResponse = new EmailResponse("Correo Enviado");
+        SuccessResponseDTO<EmailResponse> response = new SuccessResponseDTO<>(emailResponse);
 
         return ResponseEntity.ok(response);
     }
@@ -37,14 +41,28 @@ public class EmailController {
     public class GlobalExceptionHandler {
 
         @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-            Map<String, String> errors = new HashMap<>();
+        public ResponseEntity<ErrorResponseDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
+            List<ErrorDetailDTO> errors = ex.getBindingResult().getFieldErrors().stream()
+                    .map(error -> new ErrorDetailDTO(
+                            "400",
+                            error.getDefaultMessage(),
+                            error.getField()
+                    ))
+                    .collect(Collectors.toList());
 
-            ex.getBindingResult().getFieldErrors().forEach(error -> {
-                errors.put(error.getField(), error.getDefaultMessage());
-            });
+            ErrorResponseDTO response = new ErrorResponseDTO(null, errors);
+            return ResponseEntity.badRequest().body(response);
+        }
 
-            return ResponseEntity.badRequest().body(errors);
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponseDTO> handleGeneralExceptions(Exception ex) {
+            ErrorDetailDTO error = new ErrorDetailDTO(
+                    "INTERNAL_ERROR",
+                    ex.getMessage(),
+                    null
+            );
+            ErrorResponseDTO response = new ErrorResponseDTO(null, List.of(error));
+            return ResponseEntity.internalServerError().body(response);
         }
     }
 

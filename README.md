@@ -136,9 +136,9 @@ Permisos: Admin
 
 ```http
 GET /parkings
-Descripción: Lista TODOS los parqueaderos
+Descripción: Lista TODOS los parqueaderos // Lista parqueaderos del socio
 Headers: Authorization: Bearer {token}
-Permisos: Admin
+Permisos: Admin o User
 ```
 
 ```http
@@ -169,6 +169,13 @@ Headers: Authorization: Bearer {token}
 Permisos: Admin
 ```
 
+```http
+GET /parkings/parkings/{ParkingID}/vehicles
+Descripción: Lista vehículos en algun parqueadero / Vehículos en parqueadero que le pertenezca
+Headers: Authorization: Bearer {token}
+Permisos: Admin o User
+```
+
 
 ### VEHÍCULOS
 
@@ -185,27 +192,6 @@ POST /vehicles/exit
 Descripción: Registrar salida de vehículo
 Headers: Authorization: Bearer {token}
 Body: {"placa": "ABC123", "parqueaderoId": 1}
-Permisos: Socio
-```
-
-```http
-GET /users/parkings/{ParkingID}/vehicles
-Descripción: Lista vehículos en algun parqueadero
-Headers: Authorization: Bearer {token}
-Permisos: Admin
-```
-
-```http
-GET /users/socio/parkings
-Descripción: listado de los parqueaderos que tiene asociados
-Headers: Authorization: Bearer {token}
-Permisos: Socio
-```
-
-```http
-GET /parkings/socio/{ParkingID}/vehicles
-Descripción: Vehículos en parqueadero que le pertenezca
-Headers: Authorization: Bearer {token}
 Permisos: Socio
 ```
 

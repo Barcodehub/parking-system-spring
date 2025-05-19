@@ -1,5 +1,7 @@
 package com.nelumbo.parqueadero_api.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nelumbo.parqueadero_api.dto.VehicleEntryRequestDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleEntryResponseDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitRequestDTO;
@@ -61,7 +63,7 @@ public class VehicleService {
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
 
         // 6. Notificación
-        sendNotification(userEmail, request.placa(), "Ingreso registrado", parqueadero.getNombre());
+        sendNotification(userEmail, request.placa(), "Correo enviado", parqueadero.getId());
 
         // 7. Respuesta exitosa
         return new SuccessResponseDTO<>(
@@ -130,7 +132,7 @@ public class VehicleService {
                 .build();
     }
 
-    private void sendNotification(String email, String placa, String message, String parqueaderoId) {
+    private void sendNotification(String email, String placa, String message, Integer parqueaderoId) {
         EmailRequest notificationRequest = new EmailRequest(
                 email,
                 placa.toUpperCase(),
@@ -139,13 +141,18 @@ public class VehicleService {
         );
 
         try {
-            ResponseEntity<EmailResponse> response = restTemplate.postForEntity(
+            ResponseEntity<String> rawResponse = restTemplate.postForEntity(
                     notificationServiceUrl + "/api/notifications/send-email",
                     notificationRequest,
-                    EmailResponse.class);
+                    String.class
+            );
 
-            // Loggear la respuesta
-            System.out.println("Mensaje: " + Objects.requireNonNull(response.getBody()).getMessage());
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(rawResponse.getBody());
+            String responseMessage = rootNode.path("data").path("message").asText();
+
+            System.out.println("Mensaje: " + responseMessage);
+
         } catch (Exception e) {
             System.err.println("Error al enviar notificación: " + e.getMessage());
         }
