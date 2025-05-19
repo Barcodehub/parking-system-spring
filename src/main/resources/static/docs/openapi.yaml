@@ -155,22 +155,25 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
         '503':
           $ref: '#/components/responses/serviceUnavailableResponse'
-  /api/vehicles/exit:
+  /api/vehicles/entry:
     post:
       tags:
         - vehicle-controller
-      summary: Registrar salida de Vehiculo de un Parqueadero
-      description: El Socio puede registrar salida de vehículos por algún parqueadero, siempre y cuando el vehículo haya tenido una entrada.
-      operationId: registerVehicleExit
+      summary: Registrar entrada de Vehiculo a un Parqueadero
+      description: |-
+        El Socio puede registrar entrada de vehículos por algún parqueadero.
+
+        Si el microservicio de email está en ejecución, se mostrará en los logs: 'Correo enviado'.
+      operationId: registerEntry
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/VehicleExitRequestDTO'
+              $ref: '#/components/schemas/VehicleEntryRequestDTO'
         required: true
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             '*/*':
               schema:
@@ -195,25 +198,22 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
         '503':
           $ref: '#/components/responses/serviceUnavailableResponse'
-  /api/vehicles/entry:
+  /api/vehicles/exit:
     post:
       tags:
         - vehicle-controller
-      summary: Registrar entrada de Vehiculo a un Parqueadero
-      description: |-
-        El Socio puede registrar entrada de vehículos por algún parqueadero.
-
-        Si el microservicio de email está en ejecución, se mostrará en los logs: 'Correo enviado'.
-      operationId: registerEntry
+      summary: Registrar salida de Vehiculo de un Parqueadero
+      description: El Socio puede registrar salida de vehículos por algún parqueadero, siempre y cuando el vehículo haya tenido una entrada.
+      operationId: registerVehicleExit
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/VehicleEntryRequestDTO'
+              $ref: '#/components/schemas/VehicleExitRequestDTO'
         required: true
       responses:
-        '201':
-          description: Created
+        '200':
+          description: OK
           content:
             '*/*':
               schema:
