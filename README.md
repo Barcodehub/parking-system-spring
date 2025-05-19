@@ -159,7 +159,6 @@ Body: {
   "socioId": 2
 }
 Permisos: Admin
-Asegurate de introducir un SocioID valido
 ```
 
 ```http
@@ -226,7 +225,7 @@ Permisos: Admin/Socio
 ```
 
 ```http
-GET /analityc/parkings/1/vehicles/first-time
+GET /analityc/parkings/{parkingId}/vehicles/first-time
 Descripción: Vehículos registrados por primera vez en el parqueadero
 Headers: Authorization: Bearer {token}
 Permisos: Admin/Socio

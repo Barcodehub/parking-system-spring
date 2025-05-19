@@ -4,6 +4,7 @@ package com.nelumbo.parqueadero_api.exception;
 import com.nelumbo.parqueadero_api.dto.errors.ErrorDetailDTO;
 import com.nelumbo.parqueadero_api.dto.errors.ErrorResponseDTO;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -11,11 +12,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -183,6 +182,53 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponseDTO(null, List.of(errorDetail)));
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleHandlerMethodValidation(HandlerMethodValidationException ex) {
+        List<ErrorDetailDTO> errors = new ArrayList<>();
+
+        // Extraemos los argumentos del mensaje de error
+        Object[] detailArgs = ex.getDetailMessageArguments();
+        if (detailArgs != null) {
+            for (Object arg : detailArgs) {
+                if (arg instanceof String) {
+                    errors.add(new ErrorDetailDTO(
+                            "400",
+                            (String) arg,
+                            // Intentamos obtener el nombre del parámetro
+                            extractParameterName(ex)
+                    ));
+                }
+            }
+        }
+
+        // Si no encontramos detalles, usamos el mensaje general
+        if (errors.isEmpty()) {
+            errors.add(new ErrorDetailDTO(
+                    "400",
+                    ex.getMessage() != null ? ex.getMessage() : "Validation failed",
+                    null
+            ));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(null, errors));
+    }
+
+    private String extractParameterName(HandlerMethodValidationException ex) {
+        try {
+            // Intento reflexivo para obtener el nombre del parámetro en versiones antiguas
+            MethodParameter[] parameters = (MethodParameter[]) ex.getClass()
+                    .getMethod("getMethodParameters").invoke(ex);
+            if (parameters != null && parameters.length > 0) {
+                return parameters[0].getParameterName();
+            }
+        } catch (Exception e) {
+            // Fallback si falla la reflexión
+            return null;
+        }
+        return null;
     }
 
 

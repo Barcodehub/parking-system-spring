@@ -21,12 +21,14 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Validated
 public class ParkingService {
 
     private final ParkingRepository parkingRepository;
