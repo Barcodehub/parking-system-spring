@@ -97,7 +97,7 @@ API para gestión de parqueaderos con autenticación de usuarios, registro de ve
 
 ## ENDPOINTS DEL SISTEMA
 
-Descarga la colección desde [postman_collection.json](Parking_Spring.postman_collection).
+Descarga la colección desde [postman_collection.json](Parking_Spring.postman_collection.json).
 
 ### AUTHENTICACIÓN
 

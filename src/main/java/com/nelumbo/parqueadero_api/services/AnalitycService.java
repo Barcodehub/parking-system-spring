@@ -1,13 +1,14 @@
 package com.nelumbo.parqueadero_api.services;
 
 import com.nelumbo.parqueadero_api.dto.*;
+import com.nelumbo.parqueadero_api.dto.errors.ResponseMessages;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
+import com.nelumbo.parqueadero_api.models.Parking;
 import com.nelumbo.parqueadero_api.models.Vehicle;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
-import com.nelumbo.parqueadero_api.validation.annotations.ParkingExist;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +27,7 @@ public class AnalitycService {
 
     private final VehicleHistoryRepository vehicleHistoryRepository;
     private final VehicleRepository vehicleRepository;
+    private final ParkingRepository parkingRepository;
 
     public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehicles() {
         List<Object[]> results = vehicleHistoryRepository.findTop10MostFrequentVehicles();
@@ -35,15 +37,14 @@ public class AnalitycService {
                         (String) result[0],
                         ((Number) result[1]).longValue()))
                 .toList();
-
-         if (responseList.isEmpty()) {
-             throw new ResourceNotFoundException("No hay vehículos frecuentes o no existen parqueaderos");
-         }
-         return new SuccessResponseDTO<>(responseList);
+        return responseList.isEmpty()
+                ? new SuccessResponseDTO<>(null, ResponseMessages.No_FREQ_PARKING)
+                : new SuccessResponseDTO<>(responseList);
     }
 
-    public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehiclesByParking(@ParkingExist Integer parkingId) {
+    public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehiclesByParking( Integer parkingId) {
 
+        parkingExist(parkingId);
         List<Object[]> results = vehicleHistoryRepository.findTop10ByParkingId(Long.valueOf(parkingId));
 
         List<VehicleFrequencyDTO> vehicles = results.stream()
@@ -52,15 +53,19 @@ public class AnalitycService {
                         ((Number) result[1]).longValue()))
                 .toList();
 
-    if (vehicles.isEmpty()) {
-        throw new ResourceNotFoundException(
-                String.format("No hay vehículos frecuentes en el parqueadero %d", parkingId));
-    }
-    return new SuccessResponseDTO<>(vehicles);
+        return vehicles.isEmpty()
+                ? new SuccessResponseDTO<>(null, ResponseMessages.No_FREQ_IN_PARKING)
+                : new SuccessResponseDTO<>(vehicles);
 
     }
 
-    public SuccessResponseDTO<List<VehicleDTO>> getFirstTimeVehicles(@ParkingExist Integer  parkingId) {
+    private Parking parkingExist(Integer id) {
+        return parkingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
+    }
+
+    public SuccessResponseDTO<List<VehicleDTO>> getFirstTimeVehicles(Integer  parkingId) {
+        parkingExist(parkingId);
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(Math.toIntExact(parkingId));
 
         if (vehicles.isEmpty()) {
@@ -73,25 +78,18 @@ public class AnalitycService {
                 .map(this::convertToDTO)
                 .toList();
 
-        if (firstTimeVehicles.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    String.format("No hay vehículos por primera vez en el parqueadero %d", parkingId));
-        }
-
-        return new SuccessResponseDTO<>(firstTimeVehicles);
+        return firstTimeVehicles.isEmpty()
+                    ? new SuccessResponseDTO<>(null, ResponseMessages.No_VEH_FIRST_TIME)
+                : new SuccessResponseDTO<>(firstTimeVehicles);
     }
 
-    public SuccessResponseDTO<ParkingEarningsDTO> getParkingEarnings(@ParkingExist Integer parkingId) {
+    public SuccessResponseDTO<ParkingEarningsDTO> getParkingEarnings(Integer parkingId) {
 
+        parkingExist(parkingId);
         BigDecimal today = vehicleHistoryRepository.findTodayEarnings(Long.valueOf(parkingId));
         BigDecimal weekly = vehicleHistoryRepository.findWeeklyEarnings(Long.valueOf(parkingId));
         BigDecimal monthly = vehicleHistoryRepository.findMonthlyEarnings(Long.valueOf(parkingId));
         BigDecimal yearly = vehicleHistoryRepository.findYearlyEarnings(Long.valueOf(parkingId));
-
-        if (today == null && weekly == null && monthly == null && yearly == null) {
-            throw new ResourceNotFoundException(
-                    String.format("No se encontraron registros de ingresos para el parqueadero %d", parkingId));
-        }
 
         ParkingEarningsDTO earningsDTO = new ParkingEarningsDTO(
                 Optional.ofNullable(today).orElse(BigDecimal.ZERO),
@@ -100,6 +98,9 @@ public class AnalitycService {
                 Optional.ofNullable(yearly).orElse(BigDecimal.ZERO)
         );
 
+        if (today == null && weekly == null && monthly == null && yearly == null) {
+            return new SuccessResponseDTO<>(null, ResponseMessages.No_INGRESOS);
+        }
         return new SuccessResponseDTO<>(earningsDTO);
     }
 
@@ -110,7 +111,7 @@ public class AnalitycService {
         List<Object[]> results = vehicleHistoryRepository.findTop3SociosByWeeklyEarnings(startOfWeek, endOfWeek);
 
         if (results.isEmpty()) {
-            throw new ResourceNotFoundException("no hay datos de ingresos semanales para socios o no hay Socios registrados en el sistema ");
+            return new SuccessResponseDTO<>(null, ResponseMessages.No_WEEK_INGRESOS);
         }
 
         List<SocioEarningsDTO> socios = results.stream()
@@ -130,7 +131,7 @@ public class AnalitycService {
         List<Object[]> results = vehicleHistoryRepository.findTop3ParkingsByWeeklyEarnings(startOfWeek, endOfWeek);
 
         if (results.isEmpty()) {
-            throw new ResourceNotFoundException("No hay datos de ingresos semanales para parqueaderos o no hay parqueaderos registrados");
+            return new SuccessResponseDTO<>(null, ResponseMessages.No_WEEK_ParkingINGRESOS);
         }
 
         List<ParkingTopEarningsDTO> topParkings = results.stream()

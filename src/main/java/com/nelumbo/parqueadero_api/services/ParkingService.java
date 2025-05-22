@@ -8,12 +8,12 @@ import com.nelumbo.parqueadero_api.exception.BusinessException;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.Parking;
 import com.nelumbo.parqueadero_api.models.Role;
+import com.nelumbo.parqueadero_api.dto.errors.ResponseMessages;
 import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.models.Vehicle;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
-import com.nelumbo.parqueadero_api.validation.annotations.ParkingExist;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-@Validated
 public class ParkingService {
 
     private final ParkingRepository parkingRepository;
@@ -37,8 +36,7 @@ public class ParkingService {
 
     // Crear
     public SuccessResponseDTO<ParkingResponseDTO> createParking(ParkingRequestDTO request){
-        User socio = userRepository.findById(Math.toIntExact(request.socioId()))
-                .orElseThrow(() -> new ResourceNotFoundException("Socio no encontrado"));
+        User socio = validateAndGetSocio(Long.valueOf(request.socioId()));
 
         validateSocioRole(socio);
         //validateUniqueParkingName(request.nombre(), request.socioId());
@@ -48,15 +46,17 @@ public class ParkingService {
         return new SuccessResponseDTO<>(mapToDTO(savedParking));
     }
 
+
+
     // Obtener por ID
     public SuccessResponseDTO<ParkingResponseDTO> getParkingById(Integer id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("ID de parqueadero inválido");
         }
-        Parking parking = parkingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
+        Parking parking = parkingExist(id);
         return new SuccessResponseDTO<>(mapToDTO(parking));
     }
+
 
     // Listar todos (con filtro opcional por socio)
     public SuccessResponseDTO<List<ParkingResponseDTO>> getAllParkingsFiltered(UserDetails userDetails) {
@@ -74,38 +74,22 @@ public class ParkingService {
         List<ParkingResponseDTO> responseList = parkings.stream()
                 .map(this::mapToDTO)
                 .toList();
-        if (responseList.isEmpty()) {
-            throw new ResourceNotFoundException("No se encontraron parqueaderos");
-        }
-
-        return new SuccessResponseDTO<>(responseList);
-    }
-
-    public SuccessResponseDTO<List<ParkingResponseDTO>> getParkingsBySocioEmail(String email) {
-        List<Parking> parkings = parkingRepository.findBySocioEmail(email);
-
-        if (parkings.isEmpty()) {
-            throw new ResourceNotFoundException("No tienes parqueaderos asociados");
-        }
-
-        List<ParkingResponseDTO> responseList = parkings.stream()
-                .map(this::mapToDTO)
-                .toList();
-
-        return new SuccessResponseDTO<>(responseList);
+        return responseList.isEmpty()
+                ? new SuccessResponseDTO<>(null, ResponseMessages.NO_PARKING)
+                : new SuccessResponseDTO<>(responseList);
     }
 
 
     // Actualizar
-    public SuccessResponseDTO<ParkingResponseDTO> updateParking(@ParkingExist @PathVariable Integer id, @Valid ParkingRequestDTO request) {
+    public SuccessResponseDTO<ParkingResponseDTO> updateParking(@PathVariable Integer id, @Valid ParkingRequestDTO request) {
 
-        Parking parking = parkingRepository.getReferenceById(id);
+        User socio = validateAndGetSocio(Long.valueOf(request.socioId()));
+        Parking parking = parkingExist(id);
 
         // Actualización de campos
         parking.setNombre(request.nombre());
         parking.setCapacidad(request.capacidad());
         parking.setCostoPorHora(request.costoPorHora());
-        User socio = userRepository.getReferenceById(request.socioId());
         parking.setSocio(socio);
 
         Parking updatedParking = parkingRepository.save(parking);
@@ -114,24 +98,44 @@ public class ParkingService {
 
     // Eliminar
     public SuccessResponseDTO<Void> deleteParking(Integer id) {
-        Parking parking = parkingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
-
+        Parking parking = parkingExist(id);
         parkingRepository.delete(parking);
-
-        return new SuccessResponseDTO<>(null); // Data null para operaciones de eliminación exitosas
+        return new SuccessResponseDTO<>(null);
     }
+
+
+
+    public SuccessResponseDTO<List<AdminVehicleResponseDTO>> getVehiclesInParking(
+            @PathVariable Integer parkingId,
+            @AuthenticationPrincipal UserDetails userDetails) {  // userDetails puede ser null (para admin)
+
+        // 1. Obtener parqueadero
+        Parking parking = parkingExist(parkingId);
+
+        // 2. Validar permisos
+        validateParkingAccess(parking, userDetails);
+
+        // 3. Obtener vehículos
+        List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
+
+        if (vehicles.isEmpty()) {
+            throw new ResourceNotFoundException("No hay vehículos estacionados");
+        }
+
+        // 4. Convertir a DTOs
+        List<AdminVehicleResponseDTO> vehicleDTOs = vehicles.stream()
+                .map(this::convertToAdminVehicleDTO)
+                .toList();
+
+        // 5. Retornar respuesta
+        return new SuccessResponseDTO<>(vehicleDTOs);
+    }
+
 
     // -- Métodos auxiliares --
     private void validateSocioRole(User user) {
         if (user.getRole() != Role.SOCIO) {
             throw new BusinessException("El usuario debe tener rol SOCIO", "socioId");
-        }
-    }
-
-    private void validateUniqueParkingName(String nombre, Integer socioId) {
-        if (parkingRepository.existsByNombreAndSocioId(nombre, socioId)) {
-            throw new BusinessException("Ya tienes un parqueadero con ese nombre", "nombre");
         }
     }
 
@@ -155,38 +159,6 @@ public class ParkingService {
                 parking.getCreatedAt()
         );
     }
-
-
-
-
-
-    public SuccessResponseDTO<List<AdminVehicleResponseDTO>> getVehiclesInParking(
-            @ParkingExist @PathVariable Integer parkingId,
-            @AuthenticationPrincipal UserDetails userDetails) {  // userDetails puede ser null (para admin)
-
-        // 1. Obtener parqueadero (la existencia ya está validada por @ParkingExist)
-        Parking parking = parkingRepository.getReferenceById(parkingId);
-
-        // 2. Validar permisos
-        validateParkingAccess(parking, userDetails);
-
-        // 3. Obtener vehículos
-        List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
-
-        if (vehicles.isEmpty()) {
-            throw new ResourceNotFoundException("No hay vehículos estacionados");
-        }
-
-        // 4. Convertir a DTOs
-        List<AdminVehicleResponseDTO> vehicleDTOs = vehicles.stream()
-                .map(this::convertToAdminVehicleDTO)
-                .toList();
-
-        // 5. Retornar respuesta
-        return new SuccessResponseDTO<>(vehicleDTOs);
-    }
-
-
 
 
     private void validateParkingAccess(Parking parking, UserDetails userDetails) {
@@ -219,6 +191,19 @@ public class ParkingService {
     }
 
 
+    private Parking parkingExist(Integer id) {
+        return parkingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
+    }
 
+    private User validateAndGetSocio(Long socioId) {
+        if (socioId == null) {
+            throw new IllegalArgumentException("El ID del socio no puede ser nulo");
+        }
 
+        return userRepository.findById(Math.toIntExact(socioId))
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("No se encontró un socio con ID %d", socioId)
+                ));
+    }
 }

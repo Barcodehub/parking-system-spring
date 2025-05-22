@@ -7,7 +7,6 @@ import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.services.ParkingService;
-import com.nelumbo.parqueadero_api.validation.annotations.ParkingExist;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -68,7 +67,7 @@ public class ParkingController {
 
     @GetMapping("/parkings/{parkingId}/vehicles")
     public ResponseEntity<SuccessResponseDTO<List<AdminVehicleResponseDTO>>> getVehiclesInParking(
-            @ParkingExist @PathVariable Integer parkingId,
+            @PathVariable Integer parkingId,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         SuccessResponseDTO<List<AdminVehicleResponseDTO>> response =
