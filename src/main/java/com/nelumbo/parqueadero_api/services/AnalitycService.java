@@ -69,7 +69,8 @@ public class AnalitycService {
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(Math.toIntExact(parkingId));
 
         if (vehicles.isEmpty()) {
-            throw new ResourceNotFoundException("Actualmente no hay vehículos en este parqueadero");
+            return new SuccessResponseDTO<>(null, ResponseMessages.No_VEH_IN_PARKING);
+           // throw new ResourceNotFoundException("Actualmente no hay vehículos en este parqueadero");
         }
 
         List<String> existingVehicles = vehicleHistoryRepository.findPlacasByParking(Long.valueOf(parkingId));

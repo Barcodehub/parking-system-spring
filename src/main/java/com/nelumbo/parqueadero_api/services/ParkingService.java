@@ -119,7 +119,8 @@ public class ParkingService {
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(parkingId);
 
         if (vehicles.isEmpty()) {
-            throw new ResourceNotFoundException("No hay vehículos estacionados");
+            return new SuccessResponseDTO<>(null, ResponseMessages.No_VEH_IN_PARKING);
+           // throw new ResourceNotFoundException("No hay vehículos estacionados");
         }
 
         // 4. Convertir a DTOs

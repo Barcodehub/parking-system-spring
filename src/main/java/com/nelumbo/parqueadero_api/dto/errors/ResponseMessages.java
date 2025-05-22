@@ -8,5 +8,6 @@ public record ResponseMessages() {
     public static final String No_INGRESOS = "No se encontraron registros de ingresos para el parqueadero";
     public static final String No_WEEK_INGRESOS = "no hay datos de ingresos semanales para socios o no hay Socios registrados en el sistema";
     public static final String No_WEEK_ParkingINGRESOS = "No hay datos de ingresos semanales para parqueaderos o no hay parqueaderos registrados";
+    public static final String No_VEH_IN_PARKING = "No hay vehiculos en este parqueadero";
 
 }
