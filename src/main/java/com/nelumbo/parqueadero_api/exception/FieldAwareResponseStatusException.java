@@ -11,11 +11,6 @@ public class FieldAwareResponseStatusException extends ResponseStatusException {
         this.field = field;
     }
 
-    public FieldAwareResponseStatusException(HttpStatus status, String reason, String field, Throwable cause) {
-        super(status, reason, cause);
-        this.field = field;
-    }
-
     public String getField() {
         return field;
     }

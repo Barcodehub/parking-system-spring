@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 @Service
 public class JwtService {
@@ -24,6 +25,8 @@ public class JwtService {
 
     @Value("${jwt.expiration}")
     private long expiration;
+
+    Logger logger = Logger.getLogger(getClass().getName());
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
@@ -56,7 +59,7 @@ public class JwtService {
         try {
             return extractClaim(token, Claims::getSubject);
         } catch (Exception e) {
-            System.err.println("Error extrayendo username del token: " + e.getMessage());
+           logger.severe("Error extrayendo username del token: " + e.getMessage());
             return null;
         }
     }
@@ -74,8 +77,7 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            System.err.println("Error parsing JWT: " + e.getMessage());
-            throw e;
+            throw new JwtException("Failed to parse JWT token", e);
         }
     }
 
@@ -84,7 +86,7 @@ public class JwtService {
             byte[] keyBytes = Decoders.BASE64.decode(secret);
             return Keys.hmacShaKeyFor(keyBytes);
         } catch (Exception e) {
-            System.err.println("Error generando signing key: " + e.getMessage());
+            logger.severe("Error generando signing key: " + e.getMessage());
             throw new JwtException("Error con la clave secreta");
         }
     }

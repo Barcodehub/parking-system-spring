@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface ParkingRepository extends JpaRepository<Parking, Integer> {
-    List<Parking> findBySocioId(Integer socio_id); // Para filtrar por socio
+    List<Parking> findBySocioId(Integer socio); // Para filtrar por socio
     boolean existsByNombreAndSocioId( @Param("nombre") String nombre,
                                       @Param("socioId") Integer socioId); // Validar nombre único por socio
 

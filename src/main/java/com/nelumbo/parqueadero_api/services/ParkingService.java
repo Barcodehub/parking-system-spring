@@ -16,13 +16,12 @@ import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 
 @Service
@@ -39,7 +38,6 @@ public class ParkingService {
         User socio = validateAndGetSocio(Long.valueOf(request.socioId()));
 
         validateSocioRole(socio);
-        //validateUniqueParkingName(request.nombre(), request.socioId());
 
         Parking parking = mapToEntity(request, socio);
         Parking savedParking = parkingRepository.save(parking);
@@ -68,7 +66,7 @@ public class ParkingService {
         if (isSocio) {
             parkings = parkingRepository.findBySocioEmail(userDetails.getUsername());
         } else {
-            parkings = parkingRepository.findAll(); // ADMIN o otros roles ven todo
+            parkings = parkingRepository.findAll();
         }
 
         List<ParkingResponseDTO> responseList = parkings.stream()
@@ -81,7 +79,7 @@ public class ParkingService {
 
 
     // Actualizar
-    public SuccessResponseDTO<ParkingResponseDTO> updateParking(@PathVariable Integer id, @Valid ParkingRequestDTO request) {
+    public SuccessResponseDTO<ParkingResponseDTO> updateParking(Integer id, @Valid ParkingRequestDTO request) {
 
         User socio = validateAndGetSocio(Long.valueOf(request.socioId()));
         Parking parking = parkingExist(id);
@@ -106,7 +104,7 @@ public class ParkingService {
 
 
     public SuccessResponseDTO<List<AdminVehicleResponseDTO>> getVehiclesInParking(
-            @PathVariable Integer parkingId,
+            Integer parkingId,
             @AuthenticationPrincipal UserDetails userDetails) {  // userDetails puede ser null (para admin)
 
         // 1. Obtener parqueadero
@@ -120,7 +118,6 @@ public class ParkingService {
 
         if (vehicles.isEmpty()) {
             return new SuccessResponseDTO<>(null, ResponseMessages.No_VEH_IN_PARKING);
-           // throw new ResourceNotFoundException("No hay vehículos estacionados");
         }
 
         // 4. Convertir a DTOs
@@ -134,13 +131,14 @@ public class ParkingService {
 
 
     // -- Métodos auxiliares --
+    @Generated
     private void validateSocioRole(User user) {
         if (user.getRole() != Role.SOCIO) {
             throw new BusinessException("El usuario debe tener rol SOCIO", "socioId");
         }
     }
 
-
+    @Generated
     private Parking mapToEntity(ParkingRequestDTO dto, User socio) {
         return Parking.builder()
                 .nombre(dto.nombre())
@@ -149,7 +147,7 @@ public class ParkingService {
                 .socio(socio)
                 .build();
     }
-
+    @Generated
     private ParkingResponseDTO mapToDTO(Parking parking) {
         return new ParkingResponseDTO(
                 parking.getId(),
@@ -161,7 +159,7 @@ public class ParkingService {
         );
     }
 
-
+    @Generated
     private void validateParkingAccess(Parking parking, UserDetails userDetails) {
         if (userDetails == null) {
             return; // Acceso admin sin restricciones
@@ -174,12 +172,12 @@ public class ParkingService {
             }
         }
     }
-
+    @Generated
     private boolean isSocio(UserDetails userDetails) {
         return userDetails.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_SOCIO"));
     }
-
+    @Generated
     private AdminVehicleResponseDTO convertToAdminVehicleDTO(Vehicle vehicle) {
         return new AdminVehicleResponseDTO(
                 vehicle.getId(),
@@ -191,12 +189,12 @@ public class ParkingService {
         );
     }
 
-
+    @Generated
     private Parking parkingExist(Integer id) {
         return parkingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
     }
-
+    @Generated
     private User validateAndGetSocio(Long socioId) {
         if (socioId == null) {
             throw new IllegalArgumentException("El ID del socio no puede ser nulo");

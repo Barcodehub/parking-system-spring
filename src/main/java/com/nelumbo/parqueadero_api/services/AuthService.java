@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -35,7 +34,7 @@ public class AuthService {
                     .orElseThrow(() -> new AuthenticationFailedException("Usuario NO encontrado para ese E-mail", "email"));
 
             // Autenticación con Spring Security
-            Authentication authentication = authenticationManager.authenticate(
+            authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.email(),
                             request.password()
@@ -44,7 +43,6 @@ public class AuthService {
 
             // Generación del token JWT
             String jwtToken = jwtService.generateToken(user);
-           // System.out.println("Token generado para " + user.getEmail() + ": " + jwtToken);
 
             AuthResponseDTO authResponse = new AuthResponseDTO(
                     jwtToken,

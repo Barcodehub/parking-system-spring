@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -83,7 +82,7 @@ public class GlobalExceptionHandler {
                         "400",  // Bad Request
                         v.getMessage(),
                         v.getPropertyPath().toString().split("\\.")[1]))
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponseDTO(null, errors));
@@ -115,12 +114,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(DuplicateVehicleException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicateVehicle(DuplicateVehicleException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("mensaje", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponseDTO> handleBusinessException(BusinessException ex) {
@@ -165,14 +158,6 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(CustomAccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleCustomAccessDenied(CustomAccessDeniedException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("status", "403");
-        response.put("error", "Forbidden");
-        response.put("message", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-    }
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponseDTO> handleAccessDenied(AccessDeniedException ex) {
         ErrorDetailDTO errorDetail = new ErrorDetailDTO(
@@ -192,11 +177,10 @@ public class GlobalExceptionHandler {
         Object[] detailArgs = ex.getDetailMessageArguments();
         if (detailArgs != null) {
             for (Object arg : detailArgs) {
-                if (arg instanceof String) {
+                if (arg instanceof String str) {
                     errors.add(new ErrorDetailDTO(
                             "400",
-                            (String) arg,
-                            // Intentamos obtener el nombre del parámetro
+                            str,
                             extractParameterName(ex)
                     ));
                 }
@@ -205,9 +189,10 @@ public class GlobalExceptionHandler {
 
         // Si no encontramos detalles, usamos el mensaje general
         if (errors.isEmpty()) {
+            ex.getMessage();
             errors.add(new ErrorDetailDTO(
                     "400",
-                    ex.getMessage() != null ? ex.getMessage() : "Validation failed",
+                    ex.getMessage(),
                     null
             ));
         }

@@ -15,8 +15,10 @@ import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.validation.annotations.ParqueaderoTieneEspacio;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,9 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 @Service
 @RequiredArgsConstructor
@@ -42,15 +46,18 @@ public class VehicleService {
     @Value("${notification.service.url}")
     private String notificationServiceUrl;
 
+    Logger logger = Logger.getLogger(getClass().getName());
+
+
     @Transactional
     public SuccessResponseDTO<VehicleEntryResponseDTO> registerVehicleEntry(@Valid @ParqueaderoTieneEspacio VehicleEntryRequestDTO request, String userEmail) {
         // 1. Normalización de placa
         String placaNormalizada = request.placa().toUpperCase().trim();
 
+        Parking parqueadero = parkingRepository.findById(request.parqueaderoId())
+                .orElseThrow(() -> new EntityNotFoundException("Parking not found with id " + request.parqueaderoId()));
 
         User socio = getCurrentAuthenticatedUser();
-
-        Parking parqueadero = parkingRepository.findById(request.parqueaderoId()).get();
 
         // 5. Crear registro
         Vehicle vehicle = Vehicle.builder()
@@ -72,17 +79,6 @@ public class VehicleService {
                 )
         );
     }
-
-    private User getCurrentAuthenticatedUser() {
-        return userRepository.findByEmail(getCurrentUserEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-    }
-
-    private String getCurrentUserEmail() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
-    }
-
-
 
     @Transactional
     public SuccessResponseDTO<VehicleExitResultDTO> registerVehicleExit(@Valid VehicleExitRequestDTO request) {        // Normalizar placa
@@ -111,16 +107,27 @@ public class VehicleService {
                 new VehicleExitResultDTO(
                         "Salida registrada"
                 )
-        );    }
+        );
+    }
+
+    @Generated
+    private User getCurrentAuthenticatedUser() {
+        return userRepository.findByEmail(getCurrentUserEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+    }
+    @Generated
+    private String getCurrentUserEmail() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
 
 
-
+    @Generated
     private BigDecimal calculateParkingFee(LocalDateTime entryTime, LocalDateTime exitTime, BigDecimal hourlyRate) {
         long minutes = Duration.between(entryTime, exitTime).toMinutes();
         long hours = Math.max(1, (long) Math.ceil(minutes / 60.0)); // Cobro mínimo: 1 hora // Redondeo hacia arriba
         return hourlyRate.multiply(BigDecimal.valueOf(hours));
     }
-
+    @Generated
     private VehicleHistory createHistoryRecord(Vehicle vehicle, BigDecimal costo) {
         return VehicleHistory.builder()
                 .placa(vehicle.getPlaca())
@@ -131,7 +138,7 @@ public class VehicleService {
                 .costo(costo)
                 .build();
     }
-
+    @Generated
     private void sendNotification(String email, String placa, String message, Integer parqueaderoId) {
         EmailRequest notificationRequest = new EmailRequest(
                 email,
@@ -151,10 +158,10 @@ public class VehicleService {
             JsonNode rootNode = mapper.readTree(rawResponse.getBody());
             String responseMessage = rootNode.path("data").path("message").asText();
 
-            System.out.println("Mensaje: " + responseMessage);
+            logger.log(Level.INFO, "Mensaje: {0}", responseMessage);
 
         } catch (Exception e) {
-            System.err.println("Error al enviar notificación: " + e.getMessage());
+            logger.severe("Error al enviar notificación: " + e.getMessage());
         }
     }
 }

@@ -3,7 +3,6 @@ package com.nelumbo.parqueadero_api.dto;
 import com.nelumbo.parqueadero_api.validation.annotations.StrongPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 public record UserRequestDTO(
         @NotBlank(message = "Name is required")

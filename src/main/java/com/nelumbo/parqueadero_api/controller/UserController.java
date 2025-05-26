@@ -1,23 +1,16 @@
 package com.nelumbo.parqueadero_api.controller;
 
-import com.nelumbo.parqueadero_api.dto.AdminVehicleResponseDTO;
-import com.nelumbo.parqueadero_api.dto.ParkingResponseDTO;
+
 import com.nelumbo.parqueadero_api.dto.UserRequestDTO;
 import com.nelumbo.parqueadero_api.dto.UserResponseDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.services.ParkingService;
 import com.nelumbo.parqueadero_api.services.UserService;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")

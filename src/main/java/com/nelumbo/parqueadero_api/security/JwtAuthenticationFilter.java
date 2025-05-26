@@ -34,8 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-       // System.out.println("token:"+ authHeader);
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -46,10 +44,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             userEmail = jwtService.extractUsername(jwt);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                // Añadir logs para diagnóstico
-                //System.out.println("Email extraído del token: " + userEmail);
-
 
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
                 if (jwtService.isTokenValid(jwt, userDetails)) {
@@ -66,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }catch (UsernameNotFoundException e) {
             // Loggear el error específico
-            System.err.println("Usuario no encontrado para el token proporcionado");
+            logger.error("Usuario no encontrado para el token proporcionado");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Usuario no encontrado");
             return;
         }catch (Exception e) {

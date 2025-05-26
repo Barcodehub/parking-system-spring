@@ -2,7 +2,6 @@ package com.nelumbo.parqueadero_api.services;
 
 import com.nelumbo.parqueadero_api.dto.UserRequestDTO;
 import com.nelumbo.parqueadero_api.dto.UserResponseDTO;
-import com.nelumbo.parqueadero_api.dto.VehicleExitResultDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.exception.EmailAlreadyExistsException;
 import com.nelumbo.parqueadero_api.models.Role;

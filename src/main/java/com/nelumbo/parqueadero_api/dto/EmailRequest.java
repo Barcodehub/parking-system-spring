@@ -9,6 +9,5 @@ public record EmailRequest(
         @NotBlank(message = "El mensaje no puede estar vacío")
         String message,
 
-        // Opcional: si queremos enviar a todos los socios o a uno específico
-        Integer socioId  // null = enviar a todos
+        Integer socioId
 ) {}

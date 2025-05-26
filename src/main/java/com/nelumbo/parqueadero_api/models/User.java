@@ -45,18 +45,18 @@ public class User  implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relationships (mapped to Prisma's references)
+    // Relationships
     @ToString.Exclude
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL)
-    private List<Parking> parkings;
+    private transient List<Parking> parkings;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL)
-    private List<VehicleHistory> vehicleHistories;
+    private transient List<VehicleHistory> vehicleHistories;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL)
-    private List<Vehicle> vehicles;
+    private transient List<Vehicle> vehicles;
 
 
 //metodos de la clase UserDetails

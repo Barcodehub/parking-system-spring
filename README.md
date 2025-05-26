@@ -68,6 +68,16 @@ API para gestión de parqueaderos con autenticación de usuarios, registro de ve
    - Accede a traves de: http://localhost:8080/swagger-ui/index.html
    - Asegurate de colocar el token de autenticacion correcta en el botón Authorize 🔒 
 
+# Tests y Calidad
+- Se han implementado tests unitarios y de integración usando JUnit y Mockito.
+- Se utiliza JaCoCo para generar reportes de cobertura de código.
+- La cobertura de tests supera el 80%.
+- Se usa SonarLint para mantener un código limpio y libre de malas prácticas.
+
+```bash
+mvn clean test jacoco:report
+```
+
 ## Estructura de directorios:
 
   ```

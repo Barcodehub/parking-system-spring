@@ -5,7 +5,6 @@ import com.nelumbo.parqueadero_api.validation.annotations.VehiculoNoRegistradoAc
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component

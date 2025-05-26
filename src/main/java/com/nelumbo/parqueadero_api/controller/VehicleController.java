@@ -6,7 +6,6 @@ import com.nelumbo.parqueadero_api.dto.VehicleExitRequestDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitResultDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.services.VehicleService;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/vehicles")
@@ -26,14 +24,13 @@ public class VehicleController {
 
     @PostMapping("/entry")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> registerEntry(
+    public ResponseEntity<SuccessResponseDTO<VehicleEntryResponseDTO>> registerEntry(
             @RequestBody @Valid VehicleEntryRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         SuccessResponseDTO<VehicleEntryResponseDTO> response = vehicleService.registerVehicleEntry(request, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
 
 
     @PostMapping("/exit")

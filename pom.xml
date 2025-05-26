@@ -102,6 +102,29 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- JUnit 5 -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.10.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Mockito -->
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>5.11.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>5.12.0</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 
@@ -129,6 +152,43 @@
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.8</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<rules>
+						<rule>
+							<limit>
+								<minimum>80%</minimum>
+							</limit>
+						</rule>
+					</rules>
+					<excludes>
+						<exclude>com/nelumbo/parqueadero_api/security/**</exclude>
+						<exclude>com/nelumbo/parqueadero_api/config/**</exclude>
+						<exclude>com/nelumbo/parqueadero_api/models/**</exclude>
+						<exclude>com/nelumbo/parqueadero_api/dto/errors/ResponseMessages.class</exclude>
+						<exclude>com/nelumbo/parqueadero_api/ParqueaderoApiApplication.class</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

@@ -1,8 +1,6 @@
 package com.nelumbo.parqueadero_api.exception;
 
 
-import com.nelumbo.parqueadero_api.dto.errors.ErrorDetailDTO;
-
 public class BusinessException extends RuntimeException {
     private final String field;
     public BusinessException(String message, String field) {

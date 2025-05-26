@@ -13,17 +13,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.logging.Logger;
+
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
     private final UserRepository userRepository;
+    Logger logger = Logger.getLogger(getClass().getName());
 
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> {
-                    System.out.println("Usuario no encontrado para email: " + username);
+                    logger.info("Usuario no encontrado para email: " + username);
                     return new UsernameNotFoundException("Usuario no encontrado");
                 });
     }

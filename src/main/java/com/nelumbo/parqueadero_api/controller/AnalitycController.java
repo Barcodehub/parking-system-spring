@@ -3,7 +3,6 @@ package com.nelumbo.parqueadero_api.controller;
 import com.nelumbo.parqueadero_api.dto.*;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.services.AnalitycService;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,8 +40,8 @@ public class AnalitycController {
     }
 
     @GetMapping("/parkings/{id}/earnings")
-    public ResponseEntity<SuccessResponseDTO<?>> getParkingEarnings(@PathVariable Integer id) {
-        SuccessResponseDTO<?> response = reportService.getParkingEarnings(id);
+    public ResponseEntity<SuccessResponseDTO<ParkingEarningsDTO>> getParkingEarnings(@PathVariable Integer id) {
+        SuccessResponseDTO<ParkingEarningsDTO> response = reportService.getParkingEarnings(id);
         return ResponseEntity.ok(response);
     }
 

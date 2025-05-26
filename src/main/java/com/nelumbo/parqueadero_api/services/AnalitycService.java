@@ -59,19 +59,11 @@ public class AnalitycService {
 
     }
 
-    private Parking parkingExist(Integer id) {
-        return parkingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
-    }
+
 
     public SuccessResponseDTO<List<VehicleDTO>> getFirstTimeVehicles(Integer  parkingId) {
         parkingExist(parkingId);
         List<Vehicle> vehicles = vehicleRepository.findByParqueaderoIdAndFechaSalidaIsNull(Math.toIntExact(parkingId));
-
-        if (vehicles.isEmpty()) {
-            return new SuccessResponseDTO<>(null, ResponseMessages.No_VEH_IN_PARKING);
-           // throw new ResourceNotFoundException("Actualmente no hay vehículos en este parqueadero");
-        }
 
         List<String> existingVehicles = vehicleHistoryRepository.findPlacasByParking(Long.valueOf(parkingId));
         List<VehicleDTO> firstTimeVehicles = vehicles.stream()
@@ -145,6 +137,11 @@ public class AnalitycService {
         return new SuccessResponseDTO<>(topParkings);
     }
 
+
+    private Parking parkingExist(Integer id) {
+        return parkingRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado"));
+    }
     private VehicleDTO convertToDTO(Vehicle vehicle) {
         return new VehicleDTO(
                 vehicle.getId(),

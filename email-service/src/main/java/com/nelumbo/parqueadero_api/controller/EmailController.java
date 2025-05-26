@@ -21,11 +21,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/notifications")
 public class EmailController {
 
+    Logger logger = Logger.getLogger(getClass().getName());
+
     @PostMapping("/send-email")
     public ResponseEntity<SuccessResponseDTO<EmailResponse>> sendEmail(@Valid @RequestBody EmailRequest request) {
         // Simulación de envío de correo
-        System.out.println("Simulando envío de email a: " + request.getEmail());
-        System.out.println("Detalles: " + request.getMessage());
+        logger.info("Simulando envío de email a: " + request.getEmail());
+        logger.info("Detalles: " + request.getMessage());
 
         EmailResponse emailResponse = new EmailResponse("Correo Enviado");
         SuccessResponseDTO<EmailResponse> response = new SuccessResponseDTO<>(emailResponse);
@@ -48,7 +50,7 @@ public class EmailController {
                             error.getDefaultMessage(),
                             error.getField()
                     ))
-                    .collect(Collectors.toList());
+                    .toList();
 
             ErrorResponseDTO response = new ErrorResponseDTO(null, errors);
             return ResponseEntity.badRequest().body(response);

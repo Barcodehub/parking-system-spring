@@ -3,7 +3,6 @@ package com.nelumbo.parqueadero_api.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nelumbo.parqueadero_api.dto.errors.ErrorDetailDTO;
 import com.nelumbo.parqueadero_api.dto.errors.ErrorResponseDTO;
-import com.nelumbo.parqueadero_api.exception.CustomAccessDeniedException;
 import com.nelumbo.parqueadero_api.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,6 +20,10 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.List;
+
+import static com.nelumbo.parqueadero_api.constants.ApiPaths.*;
+import static com.nelumbo.parqueadero_api.constants.Roles.ADMIN;
+import static com.nelumbo.parqueadero_api.constants.Roles.SOCIO;
 
 
 @Configuration
@@ -34,8 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         return http
-                .csrf(csrf ->
-                        csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedHandler(customAccessDeniedHandler())
                         .authenticationEntryPoint(authenticationEntryPoint())
@@ -52,23 +55,23 @@ public class SecurityConfig {
                                         "/swagger-resources/**",
                                         "/webjars/**"
                                 ).permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/users").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/api/parkings").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/api/parkings/parkings/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_SOCIO")
-                                .requestMatchers(HttpMethod.GET, "/api/parkings").hasAnyAuthority("ROLE_ADMIN", "ROLE_SOCIO")
-                                .requestMatchers(HttpMethod.GET, "/api/parkings/**").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/api/parkings/**").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.PUT, "/api/parkings/**").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.DELETE, "/api/parkings/**").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/api/vehicles/entry").hasAnyRole("SOCIO")
-                                .requestMatchers(HttpMethod.POST, "/api/vehicles/exit").hasAnyRole("SOCIO")
-                                .requestMatchers(HttpMethod.POST, "/api/users/parkings/**").hasAuthority("ROLE_SOCIO")
-                                .requestMatchers(HttpMethod.GET, "/api/users/parkings/").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/api/analityc").hasAnyAuthority("ROLE_ADMIN", "ROLE_SOCIO")
-                                .requestMatchers(HttpMethod.GET, "/api/analityc/parkings/top-earnings").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/api/analityc/socios/top-earnings").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/api/admin/emails").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers(HttpMethod.GET, "/api/parkings/socio/my-parkings/**").hasAuthority("ROLE_SOCIO")
+                                .requestMatchers(HttpMethod.POST, REGISTRO).hasAuthority(ADMIN)
+                                .requestMatchers(HttpMethod.POST, PARKINGS).hasAuthority(ADMIN)
+                                .requestMatchers(HttpMethod.GET, ALLPARKINGS).hasAnyAuthority(ADMIN, SOCIO)
+                                .requestMatchers(HttpMethod.GET, PARKINGS).hasAnyAuthority(ADMIN, SOCIO)
+                                .requestMatchers(HttpMethod.GET, ADMINPARKINGS).hasAuthority(ADMIN)
+                                .requestMatchers(HttpMethod.POST, ADMINPARKINGS).hasAuthority(ADMIN)
+                                .requestMatchers(HttpMethod.PUT, ADMINPARKINGS).hasAuthority(ADMIN)
+                                .requestMatchers(HttpMethod.DELETE, ADMINPARKINGS).hasAuthority(ADMIN)
+                                .requestMatchers(HttpMethod.GET, SOCIOPARKINGS).hasAuthority(SOCIO)
+
+                                .requestMatchers(HttpMethod.POST, VEHICULE_ENTRY).hasAnyAuthority(SOCIO)
+                                .requestMatchers(HttpMethod.POST, VEHICULE_EXIT).hasAnyAuthority(SOCIO)
+
+                                .requestMatchers(HttpMethod.GET, ANALITYC).hasAnyAuthority(ADMIN, SOCIO)
+                                .requestMatchers(HttpMethod.GET, EARNINGPARKING).hasAuthority(ADMIN)
+                                .requestMatchers(HttpMethod.GET, EARNINGSOCIO).hasAuthority(ADMIN)
+                                .requestMatchers(HttpMethod.POST, EMAIL).hasAuthority(ADMIN)
 
                                 .anyRequest().authenticated()
                 )
