@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -70,6 +71,7 @@ class AuthControllerIntegrationTest {
         // Act & Assert
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Device-Id", "device-123")
                         .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.token").exists())
@@ -80,7 +82,7 @@ class AuthControllerIntegrationTest {
     @Test
     void login_WhenInvalidCredentials_ShouldReturnError() throws Exception {
         // Arrange
-        when(authService.authenticate(any()))
+        when(authService.authenticate(any(), eq("String by matcher")))
                 .thenThrow(new AuthenticationFailedException("Credenciales inválidas", "password"));
 
         String requestBody = """
@@ -93,6 +95,7 @@ class AuthControllerIntegrationTest {
         // Act & Assert
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Device-Id", "device-123")
                         .content(requestBody))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errors[0].description").value("Usuario NO encontrado para ese E-mail"))
@@ -112,6 +115,7 @@ class AuthControllerIntegrationTest {
         // Act & Assert
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Device-Id", "device-123")
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[0].description").value("Formato de correo inválido"))

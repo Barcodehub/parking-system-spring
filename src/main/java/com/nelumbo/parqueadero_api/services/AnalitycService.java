@@ -30,6 +30,7 @@ public class AnalitycService {
     private final ParkingRepository parkingRepository;
 
     public SuccessResponseDTO<List<VehicleFrequencyDTO>> getTop10MostFrequentVehicles() {
+
         List<Object[]> results = vehicleHistoryRepository.findTop10MostFrequentVehicles();
 
         List<VehicleFrequencyDTO> responseList = results.stream()

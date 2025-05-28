@@ -9,13 +9,13 @@ import com.nelumbo.parqueadero_api.dto.VehicleExitResultDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.exception.BusinessRuleException;
 import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
+import com.nelumbo.parqueadero_api.exception.UnauthorizedActionException;
 import com.nelumbo.parqueadero_api.models.*;
 import com.nelumbo.parqueadero_api.repository.ParkingRepository;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleHistoryRepository;
 import com.nelumbo.parqueadero_api.repository.VehicleRepository;
 import com.nelumbo.parqueadero_api.validation.annotations.ParqueaderoTieneEspacio;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.Generated;
@@ -55,9 +55,13 @@ public class VehicleService {
         String placaNormalizada = request.placa().toUpperCase().trim();
 
         Parking parqueadero = parkingRepository.findById(request.parqueaderoId())
-                .orElseThrow(() -> new EntityNotFoundException("Parking not found with id " + request.parqueaderoId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado con id " + request.parqueaderoId()));
 
         User socio = getCurrentAuthenticatedUser();
+
+        if (!parqueadero.getSocio().getId().equals(socio.getId())) {
+            throw new UnauthorizedActionException("El parqueadero no te pertenece.", "parqueaderoId");
+        }
 
         // 5. Crear registro
         Vehicle vehicle = Vehicle.builder()
@@ -88,6 +92,14 @@ public class VehicleService {
         Vehicle vehicle = vehicleRepository.findByPlacaAndFechaSalidaIsNull(placaNormalizada)
                 .orElseThrow(() -> new BusinessRuleException("No se puede Registrar Salida, no existe la placa en el parqueadero"));
 
+        Parking parqueadero = parkingRepository.findById(request.parqueaderoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Parqueadero no encontrado con id " + request.parqueaderoId()));
+
+        User socio = getCurrentAuthenticatedUser();
+
+        if (!parqueadero.getSocio().getId().equals(socio.getId())) {
+            throw new UnauthorizedActionException("El parqueadero no te pertenece.", "parqueaderoId");
+        }
 
         // 3. Calcular costo
         BigDecimal costo = calculateParkingFee(

@@ -189,6 +189,8 @@
 						<exclude>com/nelumbo/parqueadero_api/models/**</exclude>
 						<exclude>com/nelumbo/parqueadero_api/dto/errors/ResponseMessages.class</exclude>
 						<exclude>com/nelumbo/parqueadero_api/ParqueaderoApiApplication.class</exclude>
+						<exclude>com/nelumbo/parqueadero_api/services/SessionCleanupService.class</exclude>
+						<exclude>com/nelumbo/parqueadero_api/services/SessionService.class</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

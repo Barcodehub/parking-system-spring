@@ -15,6 +15,7 @@ import com.nelumbo.parqueadero_api.dto.VehicleExitRequestDTO;
 import com.nelumbo.parqueadero_api.dto.VehicleExitResultDTO;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.exception.BusinessRuleException;
+import com.nelumbo.parqueadero_api.exception.ResourceNotFoundException;
 import com.nelumbo.parqueadero_api.models.Parking;
 import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.models.Vehicle;
@@ -90,12 +91,15 @@ class VehicleServiceTest {
         String userEmail = "user@example.com";
 
         User mockUser = new User();
+        mockUser.setId(1);
         mockUser.setEmail(userEmail);
-        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(mockUser));
 
+// Mockear el usuario autenticado
+        when(userRepository.findByEmail(any())).thenReturn(Optional.of(mockUser));
         Parking mockParking = new Parking();
         mockParking.setId(1);
         mockParking.setCostoPorHora(new BigDecimal("10.00"));
+        mockParking.setSocio(mockUser);
 
         Vehicle savedVehicle = new Vehicle();
         savedVehicle.setId(100);
@@ -103,6 +107,10 @@ class VehicleServiceTest {
         savedVehicle.setParqueadero(mockParking);
         savedVehicle.setSocio(mockUser);
         savedVehicle.setFechaIngreso(LocalDateTime.now());
+
+
+// Mockear el usuario autenticado
+        when(userRepository.findByEmail(any())).thenReturn(Optional.of(mockUser));
 
         when(parkingRepository.findById(1)).thenReturn(Optional.of(mockParking));
         when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(mockUser));
@@ -129,7 +137,7 @@ class VehicleServiceTest {
         when(parkingRepository.findById(1)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             vehicleService.registerVehicleEntry(request, userEmail);
         });
     }
@@ -138,11 +146,20 @@ class VehicleServiceTest {
     @Test
     void registerVehicleExit_ShouldRegisterExitSuccessfully() {
         // Arrange
+
         VehicleExitRequestDTO request = new VehicleExitRequestDTO("ABC123", 1);
 
         Parking mockParking = new Parking();
         mockParking.setId(1);
         mockParking.setCostoPorHora(new BigDecimal("10.00"));
+        when(parkingRepository.findById(1)).thenReturn(Optional.of(mockParking));
+
+        User mockUser = new User();
+        mockUser.setId(1); // ID cualquiera
+        mockParking.setSocio(mockUser);
+
+// Mockear el usuario autenticado
+        when(userRepository.findByEmail(any())).thenReturn(Optional.of(mockUser));
 
         Vehicle mockVehicle = new Vehicle();
         mockVehicle.setId(100);

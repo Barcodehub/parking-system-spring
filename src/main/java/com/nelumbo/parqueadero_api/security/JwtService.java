@@ -47,11 +47,11 @@ public class JwtService {
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
@@ -89,5 +89,11 @@ public class JwtService {
             logger.severe("Error generando signing key: " + e.getMessage());
             throw new JwtException("Error con la clave secreta");
         }
+    }
+
+    public String generateToken(UserDetails userDetails, String deviceId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("deviceId", deviceId);
+        return generateToken(claims, userDetails);
     }
 }

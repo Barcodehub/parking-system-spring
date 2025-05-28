@@ -4,12 +4,15 @@ package com.nelumbo.parqueadero_api.exception;
 import com.nelumbo.parqueadero_api.dto.errors.ErrorDetailDTO;
 import com.nelumbo.parqueadero_api.dto.errors.ErrorResponseDTO;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -17,6 +20,7 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import java.util.*;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -33,6 +37,17 @@ public class GlobalExceptionHandler {
                 null
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponseDTO(null, List.of(errorDetail)));
+    }
+
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(UnauthorizedActionException ex) {
+        ErrorDetailDTO errorDetail = new ErrorDetailDTO(
+                "403",
+                ex.getMessage(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponseDTO(null, List.of(errorDetail)));
     }
 
@@ -148,6 +163,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleInternalError(Exception ex) {
+        log.error("",ex);
         ErrorDetailDTO errorDetail = new ErrorDetailDTO(
                 "500",
                 "Internal server error",
@@ -215,6 +231,26 @@ public class GlobalExceptionHandler {
         }
         return null;
     }
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponseDTO> handleConflict(IllegalStateException ex) {
+        ErrorDetailDTO response = new ErrorDetailDTO(
+                "409",
+                ex.getMessage(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponseDTO(null, List.of(response)));
+    }
 
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponseDTO> handleMissingHeaders(MissingRequestHeaderException ex) {
+        ErrorDetailDTO error = new ErrorDetailDTO(
+                "400",
+                "El header " + ex.getHeaderName() + " es requerido",
+                null
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(null, List.of(error)));
+    }
 
 }

@@ -9,6 +9,7 @@ import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.security.JwtService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,9 +26,10 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final SessionService sessionService;
     private final PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<SuccessResponseDTO<AuthResponseDTO>> authenticate(@Valid AuthRequestDTO request) {
+    public ResponseEntity<SuccessResponseDTO<AuthResponseDTO>> authenticate(@Valid AuthRequestDTO request, @NotBlank String deviceId) {
         try {
             // Primero obtenemos el usuario
             User user = userRepository.findByEmail(request.email())
@@ -41,8 +43,9 @@ public class AuthService {
                     )
             );
 
-            // Generación del token JWT
-            String jwtToken = jwtService.generateToken(user);
+            // Generación del token JWT y session de usuario
+            String jwtToken = jwtService.generateToken(user, deviceId);
+            sessionService.createSession(user.getEmail(), deviceId, jwtToken);
 
             AuthResponseDTO authResponse = new AuthResponseDTO(
                     jwtToken,
@@ -60,5 +63,22 @@ public class AuthService {
         } catch (AuthenticationFailedException e) {
             throw e;
         }
+
+    }
+
+    public ResponseEntity<SuccessResponseDTO<String>> logout(String token, @NotBlank String deviceId) {
+        if (token == null || token.isBlank()) {
+            throw new IllegalArgumentException("Token no proporcionado");
+        }
+
+        String username = jwtService.extractUsername(token);
+
+        if (!sessionService.hasActiveSession(username, deviceId)) {
+            throw new IllegalStateException("No existe sessión para este dispositivo");
+        }
+
+        sessionService.invalidateSessionForDevice(username, deviceId);
+
+        return ResponseEntity.ok(new SuccessResponseDTO<>("Logout exitoso para este dispositivo"));
     }
 }

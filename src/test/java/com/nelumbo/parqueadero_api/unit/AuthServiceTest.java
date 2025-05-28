@@ -9,6 +9,7 @@ import com.nelumbo.parqueadero_api.models.User;
 import com.nelumbo.parqueadero_api.repository.UserRepository;
 import com.nelumbo.parqueadero_api.security.JwtService;
 import com.nelumbo.parqueadero_api.services.AuthService;
+import com.nelumbo.parqueadero_api.services.SessionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,6 +40,9 @@ class AuthServiceTest {
     private JwtService jwtService;
 
     @Mock
+    private SessionService sessionService;
+
+    @Mock
     private AuthenticationManager authenticationManager;
 
     @Mock
@@ -50,11 +54,13 @@ class AuthServiceTest {
     @Test
     void authenticate_WhenValidCredentials_ShouldReturnToken() {
         // Arrange
+
+        String deviceId = "device-123";
         AuthRequestDTO request = new AuthRequestDTO("user@example.com", "password");
         User mockUser = new User(1, "Test User", "user@example.com", "encodedPass", Role.SOCIO, LocalDateTime.now(), null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(mockUser));
-        when(jwtService.generateToken(mockUser)).thenReturn("mock.jwt.token");
+        when(jwtService.generateToken(mockUser, deviceId)).thenReturn("mock.jwt.token");
 
         // Mock successful authentication
         Authentication auth = mock(Authentication.class);
@@ -62,7 +68,7 @@ class AuthServiceTest {
 
         // Act
         ResponseEntity<SuccessResponseDTO<AuthResponseDTO>> response =
-                authService.authenticate(request);
+                authService.authenticate(request, deviceId);
 
         // Assert
         assertNotNull(response);
@@ -74,20 +80,22 @@ class AuthServiceTest {
         assertEquals(Role.SOCIO, responseBody.role());
 
         verify(userRepository).findByEmail("user@example.com");
-        verify(jwtService).generateToken(mockUser);
+        verify(jwtService).generateToken(mockUser, deviceId);
         verify(authenticationManager).authenticate(any());
+        verify(sessionService).createSession("user@example.com", deviceId, "mock.jwt.token");
     }
 
     @Test
     void authenticate_WhenUserNotFound_ShouldThrowException() {
         // Arrange
+        String deviceId = "device-123";
         AuthRequestDTO request = new AuthRequestDTO("nonexistent@example.com", "password");
         when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
 
         // Act & Assert
         AuthenticationFailedException exception = assertThrows(
                 AuthenticationFailedException.class,
-                () -> authService.authenticate(request)
+                () -> authService.authenticate(request, deviceId)
         );
 
         assertEquals("Usuario NO encontrado para ese E-mail", exception.getMessage());
@@ -100,6 +108,7 @@ class AuthServiceTest {
     @Test
     void authenticate_WhenBadCredentials_ShouldThrowException() {
         // Arrange
+        String deviceId = "device-123";
         AuthRequestDTO request = new AuthRequestDTO("user@example.com", "wrongpass");
         User mockUser = new User(1, "Test User", "user@example.com", "encodedPass", Role.SOCIO, LocalDateTime.now(), null, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
@@ -110,7 +119,7 @@ class AuthServiceTest {
         // Act & Assert
         AuthenticationFailedException exception = assertThrows(
                 AuthenticationFailedException.class,
-                () -> authService.authenticate(request)
+                () -> authService.authenticate(request, deviceId)
         );
 
         assertEquals("Credenciales inválidas", exception.getMessage());

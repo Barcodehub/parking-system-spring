@@ -31,6 +31,9 @@ API para gestión de parqueaderos con autenticación de usuarios, registro de ve
 - Histórico completo de vehículos parqueados (VehicleHistory)
 - Sistema de roles (ADMIN/SOCIO) con permisos diferenciados
 - Microservicio de email simulado
+- Sesiones multidispositivo con logout individual
+- Limpieza automática de sesiones con token expirado cada hora
+- Requiere header `X-Device-Id` para validar sesión por dispositivo
 
 ## ROLES Y PERMISOS:
 
