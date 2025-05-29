@@ -129,4 +129,58 @@ class AuthServiceTest {
         verify(authenticationManager).authenticate(any());
         verify(jwtService, never()).generateToken(any());
     }
+
+
+
+    @Test
+    void logout_ShouldInvalidateSessionAndReturnSuccessMessage() {
+        // Arrange
+        String token = "mocked.jwt.token";
+        String deviceId = "device-123";
+        String username = "user@example.com";
+
+        when(jwtService.extractUsername(token)).thenReturn(username);
+        when(sessionService.hasActiveSession(username, deviceId)).thenReturn(true);
+
+        // Act
+        ResponseEntity<SuccessResponseDTO<String>> response = authService.logout(token, deviceId);
+
+        // Assert
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals("Logout exitoso para este dispositivo", response.getBody().data());
+        verify(sessionService, times(1)).invalidateSessionForDevice(username, deviceId);
+    }
+
+    @Test
+    void logout_ShouldThrowException_WhenTokenIsNull() {
+        // Act & Assert
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                authService.logout(null, "device-123"));
+        assertEquals("Token no proporcionado", ex.getMessage());
+    }
+
+    @Test
+    void logout_ShouldThrowException_WhenDeviceIdIsBlank() {
+        // Act & Assert
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                authService.logout("mocked.jwt.token", ""));
+        assertEquals("Device ID es requerido", ex.getMessage());
+    }
+
+    @Test
+    void logout_ShouldThrowException_WhenNoActiveSessionExists() {
+        // Arrange
+        String token = "mocked.jwt.token";
+        String deviceId = "device-123";
+        String username = "user@example.com";
+
+        when(jwtService.extractUsername(token)).thenReturn(username);
+        when(sessionService.hasActiveSession(username, deviceId)).thenReturn(false);
+
+        // Act & Assert
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                authService.logout(token, deviceId));
+        assertEquals("No existe sessión para este dispositivo", ex.getMessage());
+    }
 }

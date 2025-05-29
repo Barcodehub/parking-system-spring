@@ -35,6 +35,10 @@ public class AuthService {
             User user = userRepository.findByEmail(request.email())
                     .orElseThrow(() -> new AuthenticationFailedException("Usuario NO encontrado para ese E-mail", "email"));
 
+            if (deviceId == null || deviceId.trim().isEmpty()) {
+                throw new IllegalArgumentException("Device ID es requerido");
+            }
+
             // Autenticación con Spring Security
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -69,6 +73,10 @@ public class AuthService {
     public ResponseEntity<SuccessResponseDTO<String>> logout(String token, @NotBlank String deviceId) {
         if (token == null || token.isBlank()) {
             throw new IllegalArgumentException("Token no proporcionado");
+        }
+
+        if (deviceId == null || deviceId.isBlank()) {
+            throw new IllegalArgumentException("Device ID es requerido");
         }
 
         String username = jwtService.extractUsername(token);

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5370d5ef-b8bc-41fc-9c25-b482af5b3241",
+		"_postman_id": "999e47ea-3dd6-409a-ae36-53375405de13",
 		"name": "Parking_Spring",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "32173760"
@@ -54,6 +54,11 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -98,6 +103,11 @@
 							{
 								"key": "Authorization",
 								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
 								"type": "text"
 							}
 						],
@@ -148,6 +158,11 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -192,6 +207,11 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -226,6 +246,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
 								"type": "text"
 							}
 						],
@@ -272,6 +297,11 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -307,6 +337,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
 								"type": "text"
 							}
 						],
@@ -347,6 +382,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
 								"type": "text"
 							}
 						],
@@ -392,6 +432,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
 								"type": "text"
 							}
 						],
@@ -443,6 +488,11 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -479,6 +529,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
 								"type": "text"
 							}
 						],
@@ -519,6 +574,11 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -558,6 +618,11 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -596,6 +661,11 @@
 								"key": "Content-Type",
 								"value": "application/json",
 								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
+								"type": "text"
 							}
 						],
 						"url": {
@@ -632,6 +702,11 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "X-Device-Id",
+								"value": "pc",
 								"type": "text"
 							}
 						],
@@ -672,6 +747,11 @@
 						"key": "Content-Type",
 						"value": "application/json",
 						"type": "text"
+					},
+					{
+						"key": "X-Device-Id",
+						"value": "X-Device-Id",
+						"type": "text"
 					}
 				],
 				"url": {
@@ -701,6 +781,11 @@
 					{
 						"key": "Authorization",
 						"value": "Bearer {{authToken}}",
+						"type": "text"
+					},
+					{
+						"key": "X-Device-Id",
+						"value": "pc",
 						"type": "text"
 					}
 				],

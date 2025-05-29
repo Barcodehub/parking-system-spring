@@ -37,10 +37,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-        if (deviceId == null || deviceId.trim().isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Device ID es requerido");
-            return;
-        }
+//        if (deviceId == null || deviceId.trim().isEmpty()) {
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Device ID es requerido");
+//            return;
+//        }
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);

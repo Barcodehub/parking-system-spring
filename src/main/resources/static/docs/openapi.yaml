@@ -45,6 +45,7 @@ paths:
           schema:
             type: integer
             format: int32
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -86,6 +87,7 @@ paths:
           schema:
             type: integer
             format: int32
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       requestBody:
         content:
           application/json:
@@ -132,6 +134,7 @@ paths:
           schema:
             type: integer
             format: int32
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '204':
           description: No Content
@@ -171,6 +174,8 @@ paths:
             schema:
               $ref: '#/components/schemas/VehicleEntryRequestDTO'
         required: true
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '201':
           description: Created
@@ -211,6 +216,8 @@ paths:
             schema:
               $ref: '#/components/schemas/VehicleExitRequestDTO'
         required: true
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -251,6 +258,8 @@ paths:
             schema:
               $ref: '#/components/schemas/UserRequestDTO'
         required: true
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -285,6 +294,8 @@ paths:
       summary: Listado - Parqueaderos
       description: El Admin puede ver la lista de parqueaderos / El socio ve sus parqueaderos Asociados
       operationId: getAllParkings
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -326,6 +337,8 @@ paths:
             schema:
               $ref: '#/components/schemas/ParkingRequestDTO'
         required: true
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '201':
           description: Created
@@ -364,6 +377,8 @@ paths:
             schema:
               $ref: '#/components/schemas/AuthRequestDTO'
         required: true
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -403,6 +418,8 @@ paths:
             schema:
               $ref: '#/components/schemas/EmailRequest'
         required: true
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -444,6 +461,7 @@ paths:
           schema:
             type: integer
             format: int32
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -480,6 +498,8 @@ paths:
       summary: TopGlobal
       description: Top 10 vehículos que más veces se han registrado en los diferentes
       operationId: getTop10VehiclesGlobal
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -516,6 +536,8 @@ paths:
       summary: Top3 Socios con mas ganancias semanal
       description: Top 3 de los socios con más ingresos de vehículos en la semana actual y mostrar la cantidad de vehículos
       operationId: getTop3SociosByEarnings
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -559,6 +581,7 @@ paths:
           schema:
             type: integer
             format: int64
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -602,6 +625,7 @@ paths:
           schema:
             type: integer
             format: int64
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -645,6 +669,7 @@ paths:
           schema:
             type: integer
             format: int64
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -679,6 +704,8 @@ paths:
       summary: Top3 Parqueaderos con mas ganancias semanal
       description: Top 3 de los parqueaderos con mayor ganancia en la semana.
       operationId: getTop3ParkingsByEarnings
+      parameters:
+        - $ref: '#/components/parameters/XDeviceIdHeader'
       responses:
         '200':
           description: OK
@@ -709,6 +736,17 @@ paths:
         '503':
           $ref: '#/components/responses/serviceUnavailableResponse'
 components:
+  parameters:
+    XDeviceIdHeader:
+      name: X-Device-Id
+      in: header
+      required: true
+      schema:
+        type: string
+        example: "device-abc123"
+      description:
+        Identificador único del dispositivo para validar la sesión.
+        Usado para gestionar sesiones multidispositivo.
   schemas:
     SecurityHeaders:
       type: object
