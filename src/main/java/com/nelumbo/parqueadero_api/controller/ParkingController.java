@@ -69,4 +69,9 @@ public class ParkingController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping("/email/{id}")
+    public SuccessResponseDTO<ParkingResponseDTO> getParkingByIdEmail(@PathVariable Integer id) {
+        return parkingService.getParkingById(id);
+    }
 }

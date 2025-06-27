@@ -56,6 +56,8 @@ public class SecurityConfig {
                                         "/swagger-resources/**",
                                         "/webjars/**"
                                 ).permitAll()
+                                .requestMatchers("/api/parkings/email/**").permitAll()
+                                .requestMatchers("/api/users/socios").permitAll()
                                 .requestMatchers(HttpMethod.POST, REGISTRO).hasAuthority(ADMIN)
                                 .requestMatchers(HttpMethod.POST, PARKINGS).hasAuthority(ADMIN)
                                 .requestMatchers(HttpMethod.GET, ALLPARKINGS).hasAnyAuthority(ADMIN, SOCIO)
@@ -73,7 +75,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, EARNINGPARKING).hasAuthority(ADMIN)
                                 .requestMatchers(HttpMethod.GET, EARNINGSOCIO).hasAuthority(ADMIN)
                                 .requestMatchers(HttpMethod.POST, EMAIL).hasAuthority(ADMIN)
-
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManager->
