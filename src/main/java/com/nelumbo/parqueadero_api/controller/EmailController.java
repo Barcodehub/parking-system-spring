@@ -1,5 +1,6 @@
 package com.nelumbo.parqueadero_api.controller;
 
+import com.nelumbo.parqueadero_api.config.NotificationClient;
 import com.nelumbo.parqueadero_api.dto.EmailRequest;
 import com.nelumbo.parqueadero_api.dto.errors.SuccessResponseDTO;
 import com.nelumbo.parqueadero_api.services.EmailService;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class EmailController {
 
     private final EmailService emailService;
+    private final NotificationClient notificationClient;
 
     @PostMapping
     public ResponseEntity<SuccessResponseDTO<Map<String, String>>> sendEmailToSocios(
@@ -27,5 +29,12 @@ public class EmailController {
             @Valid @RequestBody EmailRequest emailRequest) {
 
         return ResponseEntity.ok(emailService.handleEmailSending(userDetails, emailRequest));
+    }
+
+
+
+    @PostMapping("/send-bulletin")
+    public ResponseEntity<String> sendBulletinToSocios(@RequestBody String message) {
+        return notificationClient.sendBulletin(message);
     }
 }
